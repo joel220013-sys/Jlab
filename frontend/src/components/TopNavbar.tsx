@@ -45,6 +45,12 @@ export function TopNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    const token = typeof window !== "undefined" ? (localStorage.getItem("jlab_token") || localStorage.getItem("pulselab_token")) : null;
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
     try {
       const stored = localStorage.getItem("jlab_user") || localStorage.getItem("pulselab_user");
       if (stored) {

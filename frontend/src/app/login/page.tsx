@@ -18,6 +18,21 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionNotice, setSessionNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("expired")) {
+        setSessionNotice("Your database connection was updated to Supabase. Please sign in to initialize your new session.");
+      }
+    }
+  }, []);
+
+  const setDemoCredentials = (u: string, p: string) => {
+    setUsername(u);
+    setPassword(p);
+  };
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -106,12 +121,52 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {sessionNotice && (
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2.5 shadow-sm">
+              <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+              <div className="space-y-1">
+                <span className="font-semibold block">Supabase Connected</span>
+                <span className="text-[11px] leading-relaxed block">{sessionNotice}</span>
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-300 text-rose-800 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
               <span>{error}</span>
             </div>
           )}
+
+          {/* Quick Login Pill for Seeded Accounts */}
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+              Quick Sign In (Seeded Accounts)
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setDemoCredentials("sbdcrakesh", "7899353535")}
+                className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-[#5E1224] border border-rose-200 text-[11px] font-medium transition-all"
+              >
+                👑 Lab Admin (sbdcrakesh)
+              </button>
+              <button
+                type="button"
+                onClick={() => setDemoCredentials("tech_arun", "tech123")}
+                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[11px] font-medium transition-all"
+              >
+                🔬 Technician (tech_arun)
+              </button>
+              <button
+                type="button"
+                onClick={() => setDemoCredentials("dr_bhat", "patho123")}
+                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[11px] font-medium transition-all"
+              >
+                🩺 Pathologist (dr_bhat)
+              </button>
+            </div>
+          </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
