@@ -18,9 +18,17 @@ elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+as
 if "asyncpg" in db_url and "sslmode=" in db_url:
     db_url = re.sub(r'[?&]sslmode=[^&]+', '', db_url)
 
+import ssl
+
 connect_args = {}
 if "sqlite" in db_url:
     connect_args = {"check_same_thread": False}
+elif "asyncpg" in db_url:
+    # Supabase & Cloud PostgreSQL require SSL encryption
+    ssl_ctx = ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode = ssl.CERT_NONE
+    connect_args = {"ssl": ssl_ctx}
 
 engine = create_async_engine(
     db_url,
