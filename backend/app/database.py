@@ -24,11 +24,15 @@ connect_args = {}
 if "sqlite" in db_url:
     connect_args = {"check_same_thread": False}
 elif "asyncpg" in db_url:
-    # Supabase & Cloud PostgreSQL require SSL encryption
+    # Supabase & Cloud PostgreSQL require SSL encryption & disabling statement cache for PgBouncer pooler
     ssl_ctx = ssl.create_default_context()
     ssl_ctx.check_hostname = False
     ssl_ctx.verify_mode = ssl.CERT_NONE
-    connect_args = {"ssl": ssl_ctx}
+    connect_args = {
+        "ssl": ssl_ctx,
+        "statement_cache_size": 0,
+        "prepared_statement_cache_size": 0
+    }
 
 engine = create_async_engine(
     db_url,
