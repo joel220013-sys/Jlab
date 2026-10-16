@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # FastAPI Diagnostic Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pulselab_backend
+    restart: unless-stopped
+    environment:
+      - PROJECT_NAME=PulseLab OS
+      - SECRET_KEY=${SECRET_KEY:-pulselab_enterprise_prod_secret_key_change_me_99}
+      - DATABASE_URL=${DATABASE_URL:-sqlite+aiosqlite:///app/pulselab.db}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    volumes:
+      - backend_data:/app/data
+      - ./backend/pulselab.db:/app/pulselab.db
+    expose:
+      - "8000"
+    networks:
+      - pulselab_network
+
+  # Next.js Clinical Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-/api/v1}
+    container_name: pulselab_frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-/api/v1}
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+    networks:
+      - pulselab_network
+
+  # Nginx Gateway & Reverse Proxy (Handles Port 80 & 443)
+  gateway:
+    image: nginx:alpine
+    container_name: pulselab_gateway
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - pulselab_network
+
+  # Optional PostgreSQL Enterprise Engine
+  # Run with: docker compose --profile postgres up -d
+  postgres:
+    image: postgres:16-alpine
+    container_name: pulselab_postgres
+    restart: unless-stopped
+    profiles: ["postgres"]
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-pulselab}
+      - POSTGRES_USER=${POSTGRES_USER:-pulselab_admin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pulselab_secure_password_99}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    networks:
+      - pulselab_network
+
+networks:
+  pulselab_network:
+    driver: bridge
+
+volumes:
+  backend_data:
+  postgres_data:

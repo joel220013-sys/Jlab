@@ -1,0 +1,21 @@
+{
+  "whatsapp_enabled": true,
+  "sms_enabled": false,
+  "active_provider": "DIRECT_WHATSAPP",
+  "meta_api_token": "",
+  "meta_phone_number_id": "",
+  "fast2sms_api_key": "",
+  "msg91_auth_key": "",
+  "msg91_sender_id": "SAIBAL",
+  "twilio_account_sid": "",
+  "twilio_auth_token": "",
+  "twilio_phone_number": "",
+  "lab_display_name": "Sai Balaji Diagnostic Centre",
+  "auto_send_on_approval": true,
+  "auto_send_on_booking": true,
+  "templates": {
+    "report_ready": "Hello {patient_name},\n\nYour diagnostic test report ({order_number}) from {lab_name} is ready for viewing and download.\n\n\ud83d\udcc4 View & Download Report:\n{report_url}\n\nThank you for choosing {lab_name}.",
+    "booking_confirmed": "Hello {patient_name},\n\nYour lab accession #{lab_number} has been registered at {lab_name}.\nTests: {tests}\n\nYou will receive an alert here as soon as your verified report is ready.\n\n{lab_name}",
+    "invoice_receipt": "Hello {patient_name},\n\nPayment of \u20b9{amount} received towards invoice #{invoice_number} at {lab_name}. Balance remaining: \u20b9{balance}.\n\nThank you,\n{lab_name}"
+  }
+}

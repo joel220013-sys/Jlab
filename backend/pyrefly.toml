@@ -1,0 +1,8 @@
+preset = "off"
+disable-type-errors-in-ide = true
+python-interpreter-path = "C:/Python314/python.exe"
+
+search-path = [
+    ".",
+    "app"
+]
