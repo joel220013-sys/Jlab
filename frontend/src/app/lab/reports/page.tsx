@@ -1219,7 +1219,7 @@ function ReportsContent() {
                       </tr>
                     ) : (
                       validTestsList.map((testSection, tIdx) => (
-                        <div key={tIdx} className="contents">
+                        <Fragment key={tIdx}>
                           {/* Test Section Header with Department Tag */}
                           <tr className="bg-rose-50/60">
                             <td colSpan={4} className="py-2 px-3.5 font-extrabold text-slate-900 uppercase tracking-wide underline decoration-rose-300 flex items-center justify-between">
@@ -1256,7 +1256,7 @@ function ReportsContent() {
                               </tr>
                             );
                           })}
-                        </div>
+                        </Fragment>
                       ))
                     )}
                   </tbody>

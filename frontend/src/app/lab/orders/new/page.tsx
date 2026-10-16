@@ -328,7 +328,14 @@ function NewOrderContent() {
     apiFetch("/tests")
       .then((data: any) => {
         if (isMounted && Array.isArray(data) && data.length > 0) {
-          const mapped: CatalogTestItem[] = data
+          const uniqueMap = new Map<string, any>();
+          for (const item of data) {
+            const c = (item.code || "").toUpperCase();
+            if (c && !uniqueMap.has(c)) {
+              uniqueMap.set(c, item);
+            }
+          }
+          const mapped: CatalogTestItem[] = Array.from(uniqueMap.values())
             .filter((t: any) => t.code !== "CBC_141" && !t.code?.includes("141"))
             .map((t: any) => ({
               id: t.id,
@@ -1281,7 +1288,7 @@ function NewOrderContent() {
                             const primaryShortcut = shortcuts[0];
                             return (
                               <label
-                                key={test.code}
+                                key={test.id || test.code}
                                 className={`p-2.5 rounded-lg border flex items-start gap-2 cursor-pointer select-none transition-all ${
                                   isSelected
                                     ? "bg-rose-50 border-rose-500 text-rose-950 shadow-2xs font-semibold"
@@ -1513,7 +1520,7 @@ function NewOrderContent() {
                               const isPriceModified = customPrices[t.code] !== undefined && customPrices[t.code] !== t.price;
 
                               return (
-                                <tr key={t.code} className="hover:bg-rose-50/40 transition-colors">
+                                <tr key={t.id || t.code} className="hover:bg-rose-50/40 transition-colors">
                                   {/* Column 1: Tests */}
                                   <td className="py-2.5 px-3">
                                     <div className="flex items-start gap-2">

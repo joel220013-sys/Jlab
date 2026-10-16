@@ -263,14 +263,16 @@ async def seed_initial_data(db: AsyncSession):
         all_cats[d_name] = c_obj
 
     existing_tests_res = await db.execute(select(Test).where(Test.laboratory_id == lab.id))
-    existing_tests_set = {t.name.upper() for t in existing_tests_res.scalars().all()}
+    existing_all = existing_tests_res.scalars().all()
+    existing_names_set = {t.name.upper() for t in existing_all}
+    existing_codes_set = {t.code.upper() for t in existing_all}
 
     for dept, t_items in ALL_DEPARTMENTS_TESTS.items():
         cat = all_cats[dept]
         for item in t_items:
             test_name = str(item["name"]).strip()
             test_code = str(item["code"]).strip().upper()
-            if test_name.upper() not in existing_tests_set:
+            if test_name.upper() not in existing_names_set and test_code not in existing_codes_set:
                 db.add(Test(
                     laboratory_id=lab.id,
                     category_id=cat.id,
@@ -282,7 +284,8 @@ async def seed_initial_data(db: AsyncSession):
                     expected_tat_minutes=120,
                     methodology="Standard Clinical Methodology"
                 ))
-                existing_tests_set.add(test_name.upper())
+                existing_names_set.add(test_name.upper())
+                existing_codes_set.add(test_code)
 
     await db.commit()
 
