@@ -1557,7 +1557,7 @@ function NewOrderContent() {
                                         type="number"
                                         min="0"
                                         step="1"
-                                        value={customPrices[t.code] !== undefined ? customPrices[t.code] : t.price}
+                                        value={currentPrice}
                                         onChange={(e) => handlePriceChange(t.code, e.target.value)}
                                         className={`w-28 h-8 pl-6 pr-2.5 bg-white border rounded-lg text-xs font-mono font-bold text-right transition-all shadow-2xs focus:outline-none focus:ring-2 ${
                                           isPriceModified
