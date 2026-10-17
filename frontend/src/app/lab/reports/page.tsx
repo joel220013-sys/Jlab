@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense, Fragment } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense, Fragment } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
@@ -18,7 +18,9 @@ import {
   MessageCircle,
   Share2,
   Barcode as BarcodeIcon,
-  ChevronRight
+  ChevronRight,
+  Upload,
+  Image as ImageIcon
 } from "lucide-react";
 import QRCode from "qrcode";
 import { apiFetch } from "@/lib/api";
@@ -237,6 +239,61 @@ function ReportsContent() {
   const [groupByDepartment, setGroupByDepartment] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
   const [overrideSuccess, setOverrideSuccess] = useState(false);
+
+  // Custom Letterhead State (Loaded from local computer)
+  const [customLetterhead, setCustomLetterhead] = useState<string | null>(null);
+  const letterheadFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load saved custom letterhead from browser storage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("jlab_custom_letterhead") || localStorage.getItem("pulselab_custom_letterhead");
+      if (saved) {
+        setCustomLetterhead(saved);
+      }
+    }
+  }, []);
+
+  const handleLetterheadUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file (PNG, JPG, JPEG, WEBP).");
+      return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+      alert("Image size is larger than 8MB. Please choose an optimized image for fast printing.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setCustomLetterhead(dataUrl);
+        try {
+          localStorage.setItem("jlab_custom_letterhead", dataUrl);
+          localStorage.setItem("pulselab_custom_letterhead", dataUrl);
+        } catch {
+          // localStorage storage quota exceeded fallback
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleRemoveLetterhead = () => {
+    if (confirm("Remove custom letterhead and revert to standard system header?")) {
+      setCustomLetterhead(null);
+      try {
+        localStorage.removeItem("jlab_custom_letterhead");
+        localStorage.removeItem("pulselab_custom_letterhead");
+      } catch {}
+    }
+  };
 
   // Print dropdown for table rows
   const [openPrintDropdownId, setOpenPrintDropdownId] = useState<string | null>(null);
@@ -1132,6 +1189,40 @@ function ReportsContent() {
                   Print on plain paper by Department
                 </button>
 
+                {/* Upload Custom Letterhead from Local Computer */}
+                <input
+                  type="file"
+                  ref={letterheadFileInputRef}
+                  accept="image/png, image/jpeg, image/jpg, image/webp"
+                  className="hidden"
+                  onChange={handleLetterheadUpload}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => letterheadFileInputRef.current?.click()}
+                  className={`px-3 py-1.5 text-xs font-bold rounded border shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer ${
+                    customLetterhead
+                      ? "bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-emerald-300"
+                      : "bg-white hover:bg-rose-50 text-rose-950 border-rose-200"
+                  }`}
+                  title={customLetterhead ? "Custom Letterhead Active (Click to change)" : "Upload letterhead image from your local computer"}
+                >
+                  <Upload className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>{customLetterhead ? "Change Letterhead" : "Upload Letterhead"}</span>
+                </button>
+
+                {customLetterhead && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveLetterhead}
+                    className="p-1.5 bg-white hover:bg-rose-50 text-rose-600 rounded border border-rose-200 shadow-2xs transition-colors cursor-pointer"
+                    title="Remove custom letterhead (revert to default)"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={() => triggerPrintModal({ withLetterhead: true, groupByDept: true })}
@@ -1302,6 +1393,17 @@ function ReportsContent() {
                   />
                   <span className="font-semibold text-cyan-400">Group by Department</span>
                 </label>
+
+                {/* Upload / Change Letterhead in Preview Modal */}
+                <button
+                  type="button"
+                  onClick={() => letterheadFileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 text-xs text-rose-100 bg-[#470c1b] hover:bg-[#380815] border border-rose-700/60 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+                  title="Upload letterhead image from computer"
+                >
+                  <Upload className="w-3 h-3 text-rose-300" />
+                  <span>{customLetterhead ? "Change Letterhead" : "Upload Letterhead"}</span>
+                </button>
               </div>
 
               <div className="flex items-center gap-2">
@@ -1374,54 +1476,64 @@ function ReportsContent() {
                 <div>
                   {/* LETTERHEAD HEADER (When letterheadEnabled is true) */}
                   {letterheadEnabled ? (
-                    <div className="border-b border-slate-300 pb-3 mb-3 report-header-section">
-                      <div className="flex items-center justify-between">
-                        {/* Circular Emblem Logo (Left) */}
-                        <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-                          <svg viewBox="0 0 100 100" className="w-20 h-20">
-                            {/* Outer Maroon Ring */}
-                            <circle cx="50" cy="50" r="46" fill="none" stroke="#800020" strokeWidth="4" />
-                            {/* Inner Dark Green Ring */}
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="#1B5E50" strokeWidth="2.5" />
-                            {/* Star icons */}
-                            <circle cx="50" cy="50" r="34" fill="#f8fafc" />
-                            {/* Medical Microscope/Cross Emblem */}
-                            <path d="M46 28 h8 v44 h-8 z M34 46 h32 v8 h-32 z" fill="#800020" />
-                            <circle cx="50" cy="50" r="8" fill="#1B5E50" />
-                            {/* Text labels */}
-                            <text x="50" y="22" textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#1B5E50" letterSpacing="0.5">SAI BALAJI</text>
-                            <text x="50" y="82" textAnchor="middle" fontSize="5.5" fontWeight="900" fill="#800020" letterSpacing="0.5">DAVANGERE</text>
-                            <text x="50" y="90" textAnchor="middle" fontSize="4.5" fontWeight="bold" fill="#64748b">ESTD 2007</text>
-                          </svg>
-                        </div>
+                    customLetterhead ? (
+                      <div className="border-b border-slate-300 pb-2 mb-3 report-header-section flex flex-col items-center justify-center">
+                        <img
+                          src={customLetterhead}
+                          alt="Laboratory Letterhead"
+                          className="w-full max-h-40 object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="border-b border-slate-300 pb-3 mb-3 report-header-section">
+                        <div className="flex items-center justify-between">
+                          {/* Circular Emblem Logo (Left) */}
+                          <div className="w-20 h-20 shrink-0 flex items-center justify-center">
+                            <svg viewBox="0 0 100 100" className="w-20 h-20">
+                              {/* Outer Maroon Ring */}
+                              <circle cx="50" cy="50" r="46" fill="none" stroke="#800020" strokeWidth="4" />
+                              {/* Inner Dark Green Ring */}
+                              <circle cx="50" cy="50" r="40" fill="none" stroke="#1B5E50" strokeWidth="2.5" />
+                              {/* Star icons */}
+                              <circle cx="50" cy="50" r="34" fill="#f8fafc" />
+                              {/* Medical Microscope/Cross Emblem */}
+                              <path d="M46 28 h8 v44 h-8 z M34 46 h32 v8 h-32 z" fill="#800020" />
+                              <circle cx="50" cy="50" r="8" fill="#1B5E50" />
+                              {/* Text labels */}
+                              <text x="50" y="22" textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#1B5E50" letterSpacing="0.5">SAI BALAJI</text>
+                              <text x="50" y="82" textAnchor="middle" fontSize="5.5" fontWeight="900" fill="#800020" letterSpacing="0.5">DAVANGERE</text>
+                              <text x="50" y="90" textAnchor="middle" fontSize="4.5" fontWeight="bold" fill="#64748b">ESTD 2007</text>
+                            </svg>
+                          </div>
 
-                        {/* Center Title Block */}
-                        <div className="text-center flex-1 px-2">
-                          <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-wide text-[#800020] uppercase leading-none">
-                            SAI BALAJI DIAGNOSTIC CENTRE
-                          </h1>
-                          <h2 className="text-base sm:text-lg font-sans font-bold text-[#0E4D55] tracking-tight mt-1">
-                            Sai Balaji Speciality Centre
-                          </h2>
-                          <div className="inline-block bg-[#1B5E50] text-white font-bold text-xs px-6 py-1 rounded-sm mt-1.5 shadow-2xs tracking-wide">
-                            Investigation Report
+                          {/* Center Title Block */}
+                          <div className="text-center flex-1 px-2">
+                            <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-wide text-[#800020] uppercase leading-none">
+                              SAI BALAJI DIAGNOSTIC CENTRE
+                            </h1>
+                            <h2 className="text-base sm:text-lg font-sans font-bold text-[#0E4D55] tracking-tight mt-1">
+                              Sai Balaji Speciality Centre
+                            </h2>
+                            <div className="inline-block bg-[#1B5E50] text-white font-bold text-xs px-6 py-1 rounded-sm mt-1.5 shadow-2xs tracking-wide">
+                              Investigation Report
+                            </div>
+                          </div>
+
+                          {/* Microscope Illustration (Right) */}
+                          <div className="w-20 h-20 shrink-0 flex items-center justify-center">
+                            <svg viewBox="0 0 100 100" className="w-16 h-16 text-[#1B5E50]" fill="currentColor">
+                              <path d="M52 14 L62 20 L56 30 L46 24 Z" />
+                              <path d="M48 27 L66 42 L60 48 L42 33 Z" />
+                              <rect x="58" y="44" width="6" height="12" rx="1" />
+                              <path d="M38 42 C 28 48, 26 62, 34 72 C 40 78, 52 78, 58 72 L 64 76 C 54 84, 36 84, 26 74 C 16 62, 20 44, 34 36 Z" />
+                              <rect x="42" y="60" width="28" height="4" rx="1" fill="#800020" />
+                              <rect x="36" y="80" width="46" height="7" rx="2" />
+                              <circle cx="56" cy="62" r="3" fill="#ffffff" />
+                            </svg>
                           </div>
                         </div>
-
-                        {/* Microscope Illustration (Right) */}
-                        <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-                          <svg viewBox="0 0 100 100" className="w-16 h-16 text-[#1B5E50]" fill="currentColor">
-                            <path d="M52 14 L62 20 L56 30 L46 24 Z" />
-                            <path d="M48 27 L66 42 L60 48 L42 33 Z" />
-                            <rect x="58" y="44" width="6" height="12" rx="1" />
-                            <path d="M38 42 C 28 48, 26 62, 34 72 C 40 78, 52 78, 58 72 L 64 76 C 54 84, 36 84, 26 74 C 16 62, 20 44, 34 36 Z" />
-                            <rect x="42" y="60" width="28" height="4" rx="1" fill="#800020" />
-                            <rect x="36" y="80" width="46" height="7" rx="2" />
-                            <circle cx="56" cy="62" r="3" fill="#ffffff" />
-                          </svg>
-                        </div>
                       </div>
-                    </div>
+                    )
                   ) : (
                     /* Plain Paper Reserved Blank Header Space */
                     <div className="h-28 border border-dashed border-slate-300 print:border-none mb-3 flex items-center justify-center text-slate-400 print:text-transparent text-xs report-header-section">
