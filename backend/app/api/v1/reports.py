@@ -60,6 +60,20 @@ async def list_reports(
         clean_uhid = patient.uhid.replace("PAT-", "").replace("-", "") if patient.uhid else "000000"
         order_date_str = order.created_at.strftime("%d-%m-%Y") if order.created_at else datetime.utcnow().strftime("%d-%m-%Y")
 
+        doc_name_str = doc.full_name if doc else None
+        ref_center_str = doc.clinic_hospital_name if (doc and doc.clinic_hospital_name) else None
+        if order.clinical_history:
+            import re
+            m_rc = re.search(r'Ref Center:\s*([^|]+)', order.clinical_history)
+            if m_rc:
+                ref_center_str = m_rc.group(1).strip()
+            m_doc = re.search(r'Ref By:\s*([^|]+)', order.clinical_history)
+            if m_doc:
+                extracted = m_doc.group(1).strip()
+                if extracted and extracted != "Self / Direct":
+                    if not doc_name_str or doc_name_str == "Dr. SELF":
+                        doc_name_str = extracted
+
         out.append({
             "id": rep.id,
             "order_id": order.id,
@@ -76,8 +90,8 @@ async def list_reports(
             "order_date": order_date_str,
             "date": order_date_str,
             "ip_op": "OP",
-            "doctor_name": doc.full_name if doc else "Dr. SELF",
-            "ref_center": "NANDI DIAGNOSTI CENTER",
+            "doctor_name": doc_name_str or "Self / Direct",
+            "ref_center": ref_center_str or "Direct Walk-in",
             "printed_count": 2,
             "user_log_count": 0,
             "lab_order_tests": tests_str,
@@ -289,10 +303,11 @@ async def get_report_data(
     stmt_tr = select(TestResult).where(TestResult.order_id == order_id)
     results_list = (await db.execute(stmt_tr)).scalars().all()
     
-    pathologist_name = "Dr. Srinivas Bhat, MD"
-    qualification = "MD (Pathology), KMC Reg No: 48291"
-    designation = "Consultant Pathologist & Lab Director"
+    pathologist_name = "Medical Officer"
+    qualification = "MBBS, MD (Pathology)"
+    designation = f"Consultant Pathologist, {lab.name}"
     
+    found_staff = False
     for tr_item in results_list:
         if tr_item.pathologist_id:
             p_user = (await db.execute(select(User).where(User.id == tr_item.pathologist_id))).scalar_one_or_none()
@@ -304,12 +319,51 @@ async def get_report_data(
                     qualification = f"MD (Pathology), Reg: {p_staff.medical_license_number}"
                 if p_staff.designation:
                     designation = p_staff.designation
+            found_staff = True
             break
 
+    if not found_staff:
+        stmt_staff = (
+            select(User, LaboratoryStaff)
+            .join(LaboratoryStaff, User.id == LaboratoryStaff.user_id)
+            .where(LaboratoryStaff.laboratory_id == lab_id)
+        )
+        first_staff = (await db.execute(stmt_staff)).first()
+        if first_staff:
+            u_staff, l_staff = first_staff
+            if u_staff and u_staff.full_name:
+                pathologist_name = u_staff.full_name
+            if l_staff and l_staff.designation:
+                designation = l_staff.designation
+
     addr_parts = [p for p in [lab.address, lab.city, lab.state, lab.pincode] if p]
-    formatted_address = ", ".join(addr_parts) if addr_parts else "14/2, 1st Cross, Temple Road, Malleshwaram, Bengaluru, KA 560003"
+    formatted_address = ", ".join(addr_parts) if addr_parts else (lab.address or lab.city or lab.name or "Diagnostic Laboratory")
     clean_uhid = patient.uhid.replace("PAT-", "").replace("-", "") if patient.uhid else "001"
     order_date_str = order.created_at.strftime("%d-%m-%Y") if order.created_at else datetime.utcnow().strftime("%d-%m-%Y")
+
+    # Resolve Doctor & Ref Center dynamically from Order, Doctor record, or clinical_history
+    import re
+    ref_center_val = None
+    doctor_name_val = doctor.full_name if doctor else None
+
+    if order.clinical_history:
+        m_rc = re.search(r'Ref Center:\s*([^|]+)', order.clinical_history)
+        if m_rc:
+            ref_center_val = m_rc.group(1).strip()
+        m_doc = re.search(r'Ref By:\s*([^|]+)', order.clinical_history)
+        if m_doc:
+            doc_extracted = m_doc.group(1).strip()
+            if doc_extracted and doc_extracted != "Self / Direct":
+                if not doctor_name_val or doctor_name_val in ["Dr. SELF", "Self / Direct"]:
+                    doctor_name_val = doc_extracted
+
+    if not ref_center_val and doctor and doctor.clinic_hospital_name:
+        ref_center_val = doctor.clinic_hospital_name
+    if not ref_center_val:
+        ref_center_val = "Direct Walk-in"
+
+    if not doctor_name_val:
+        doctor_name_val = "Self / Direct"
 
     return {
         "report_id": report.id,
@@ -320,7 +374,7 @@ async def get_report_data(
         "is_locked_for_billing": is_locked,
         "printed_count": 2,
         "user_log_count": 0,
-        "handed_over_to": "Demo 2",
+        "handed_over_to": "Patient (Self)",
         "billing": {
             "invoice_number": invoice.invoice_number if invoice else None,
             "total": float(invoice.total) if invoice else 0.0,
@@ -328,11 +382,12 @@ async def get_report_data(
             "status": invoice.status if invoice else "UNPAID"
         },
         "laboratory": {
+            "id": lab.id,
             "name": lab.name,
             "legal_name": lab.legal_name or lab.name,
             "tagline": "Quality Healthcare Through Accurate Diagnostics",
-            "phone": lab.phone or "+91 98450 12345 / 080-23456789",
-            "email": lab.email or "contact@saibalajidiagnostics.com",
+            "phone": lab.phone or "",
+            "email": lab.email or "",
             "address": formatted_address,
             "nabl_accr": "NABL CERTIFIED · MC-3482",
             "logo_url": lab.logo_url
@@ -353,8 +408,8 @@ async def get_report_data(
             "order_number": order.order_number,
             "lab_number": order.lab_number,
             "reg_lab_no": f"{clean_uhid} / {order.lab_number}",
-            "doctor": doctor.full_name if doctor else "Dr. SELF",
-            "ref_center": "NANDI DIAGNOSTI CENTER",
+            "doctor": doctor_name_val,
+            "ref_center": ref_center_val,
             "date": order_date_str,
             "reported_date": report.published_at.strftime("%d-%m-%Y") if report.published_at else order_date_str,
             "specimen": "EDTA Whole Blood / Urine"

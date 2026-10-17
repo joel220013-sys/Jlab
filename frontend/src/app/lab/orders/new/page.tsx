@@ -648,10 +648,15 @@ function NewOrderContent() {
         }
       }
 
+      const matchedDoc = doctorsList.find(d => d.full_name === doctorName || d.id === doctorName);
+
       const orderPayload: any = {
         test_ids: selectedTestObjects.map(t => t.id),
         custom_prices: Object.keys(customPriceMap).length > 0 ? customPriceMap : undefined,
         total_amount: subtotal,
+        doctor_id: matchedDoc ? matchedDoc.id : undefined,
+        doctor_name: doctorName && doctorName !== "Self / Direct" ? doctorName : undefined,
+        ref_center: refCenter && refCenter !== "None / Direct Walk-in" && refCenter !== "Select Ref Center" ? refCenter : undefined,
         clinical_history: combinedHistory || undefined,
         discount_amount: discountVal,
         payment_method: paymentMethod,

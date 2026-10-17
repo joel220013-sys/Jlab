@@ -92,6 +92,27 @@ async def create_unified_order(
     discount = float(req.discount_amount or 0.0)
     final_amount = max(0.0, total_amount - discount)
 
+    # 3.5 Resolve Doctor (Tenant-isolated)
+    resolved_doctor_id = req.doctor_id
+    if not resolved_doctor_id and req.doctor_name and req.doctor_name.strip() and req.doctor_name.strip() not in ["Self / Direct", "Dr. SELF"]:
+        dname = req.doctor_name.strip()
+        stmt_doc = select(Doctor).where(Doctor.laboratory_id == lab_id, func.lower(Doctor.full_name) == dname.lower())
+        existing_doc = (await db.execute(stmt_doc)).scalar_one_or_none()
+        if existing_doc:
+            resolved_doctor_id = existing_doc.id
+            if req.ref_center and not existing_doc.clinic_hospital_name:
+                existing_doc.clinic_hospital_name = req.ref_center.strip()
+        else:
+            new_doc = Doctor(
+                laboratory_id=lab_id,
+                full_name=dname,
+                clinic_hospital_name=req.ref_center.strip() if req.ref_center else None,
+                is_active=True
+            )
+            db.add(new_doc)
+            await db.flush()
+            resolved_doctor_id = new_doc.id
+
     # 4. Generate Identifiers
     year = datetime.utcnow().strftime("%Y")
     order_num = f"ORD-{year}-{str(uuid.uuid4().int)[:5]}"
@@ -102,7 +123,7 @@ async def create_unified_order(
     order = Order(
         laboratory_id=lab_id,
         patient_id=patient.id,
-        doctor_id=req.doctor_id,
+        doctor_id=resolved_doctor_id,
         order_number=order_num,
         lab_number=lab_num,
         clinical_history=req.clinical_history,

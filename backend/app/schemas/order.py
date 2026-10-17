@@ -13,6 +13,8 @@ class OrderCreate(BaseModel):
     # Test selection
     test_ids: List[str]
     doctor_id: Optional[str] = None
+    doctor_name: Optional[str] = None
+    ref_center: Optional[str] = None
     clinical_history: Optional[str] = None
     
     # Billing details

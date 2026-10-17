@@ -108,6 +108,7 @@ interface ReportDetail {
     status: string;
   };
   laboratory: {
+    id?: string;
     name: string;
     legal_name?: string;
     speciality_name?: string;
@@ -240,19 +241,43 @@ function ReportsContent() {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>("");
   const [overrideSuccess, setOverrideSuccess] = useState(false);
 
-  // Custom Letterhead State (Loaded from local computer)
-  const [customLetterhead, setCustomLetterhead] = useState<string | null>(null);
-  const letterheadFileInputRef = useRef<HTMLInputElement>(null);
+  // Current Logged-in User Session State
+  const [currentUser, setCurrentUser] = useState<{
+    userId?: string;
+    fullName?: string;
+    role?: string;
+    labId?: string;
+    labName?: string;
+    username?: string;
+  } | null>(null);
 
-  // Load saved custom letterhead from browser storage
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("jlab_custom_letterhead") || localStorage.getItem("pulselab_custom_letterhead");
-      if (saved) {
-        setCustomLetterhead(saved);
+      try {
+        const stored = localStorage.getItem("jlab_user") || localStorage.getItem("pulselab_user");
+        if (stored) {
+          setCurrentUser(JSON.parse(stored));
+        }
+      } catch (err) {
+        console.error("Failed to parse user session", err);
       }
     }
   }, []);
+
+  // Custom Letterhead State (Loaded from local computer, tenant-isolated)
+  const [customLetterhead, setCustomLetterhead] = useState<string | null>(null);
+  const letterheadFileInputRef = useRef<HTMLInputElement>(null);
+
+  const activeLabId = selectedDispatch?.laboratory?.id || currentUser?.labId || "default";
+
+  // Load saved custom letterhead from browser storage scoped by tenant laboratory ID
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tenantKey = `jlab_custom_letterhead_${activeLabId}`;
+      const saved = localStorage.getItem(tenantKey) || (activeLabId === "default" ? localStorage.getItem("jlab_custom_letterhead") : null);
+      setCustomLetterhead(saved);
+    }
+  }, [activeLabId]);
 
   const handleLetterheadUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -274,8 +299,9 @@ function ReportsContent() {
       if (dataUrl) {
         setCustomLetterhead(dataUrl);
         try {
+          const tenantKey = `jlab_custom_letterhead_${activeLabId}`;
+          localStorage.setItem(tenantKey, dataUrl);
           localStorage.setItem("jlab_custom_letterhead", dataUrl);
-          localStorage.setItem("pulselab_custom_letterhead", dataUrl);
         } catch {
           // localStorage storage quota exceeded fallback
         }
@@ -289,6 +315,8 @@ function ReportsContent() {
     if (confirm("Remove custom letterhead and revert to standard system header?")) {
       setCustomLetterhead(null);
       try {
+        const tenantKey = `jlab_custom_letterhead_${activeLabId}`;
+        localStorage.removeItem(tenantKey);
         localStorage.removeItem("jlab_custom_letterhead");
         localStorage.removeItem("pulselab_custom_letterhead");
       } catch {}
@@ -717,10 +745,10 @@ function ReportsContent() {
                 className="bg-white border border-rose-200 rounded px-2 py-1 text-slate-700 text-xs focus:outline-none focus:border-rose-600 shadow-2xs font-medium"
               >
                 <option value="All">Select Referred By</option>
-                <option value="SELF">Dr. SELF</option>
-                <option value="PATIL">Dr. V G PATIL MBBS,MS</option>
-                <option value="Ramesh">Dr. Ramesh Kumar</option>
-                <option value="Srinivas">Dr. Srinivas Bhat</option>
+                <option value="SELF">Self / Direct</option>
+                {Array.from(new Set(reports.map(r => r.doctor_name).filter(Boolean))).map((docName, idx) => (
+                  <option key={idx} value={docName}>{docName}</option>
+                ))}
               </select>
 
               <select
@@ -1137,7 +1165,7 @@ function ReportsContent() {
 
                   <div className="space-y-0.5">
                     <div className="text-xs font-bold text-slate-800 truncate">
-                      {selectedDispatch.order.doctor || "Dr. V G PATIL MBBS,MS"}
+                      {selectedDispatch.order.doctor || "Self / Direct"}
                     </div>
                     <div className="text-[10px] text-slate-400 uppercase font-semibold">
                       Referred By
@@ -1146,7 +1174,7 @@ function ReportsContent() {
 
                   <div className="space-y-0.5">
                     <div className="text-xs font-bold text-slate-800 truncate">
-                      {selectedDispatch.order.ref_center || "NANDI DIAGNOSTI CENTER"}
+                      {selectedDispatch.order.ref_center || selectedDispatch.laboratory?.name || "Direct Walk-in"}
                     </div>
                     <div className="text-[10px] text-slate-400 uppercase font-semibold">
                       Ref. Center
@@ -1489,30 +1517,44 @@ function ReportsContent() {
                         <div className="flex items-center justify-between">
                           {/* Circular Emblem Logo (Left) */}
                           <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-                            <svg viewBox="0 0 100 100" className="w-20 h-20">
-                              {/* Outer Maroon Ring */}
-                              <circle cx="50" cy="50" r="46" fill="none" stroke="#800020" strokeWidth="4" />
-                              {/* Inner Dark Green Ring */}
-                              <circle cx="50" cy="50" r="40" fill="none" stroke="#1B5E50" strokeWidth="2.5" />
-                              {/* Star icons */}
-                              <circle cx="50" cy="50" r="34" fill="#f8fafc" />
-                              {/* Medical Microscope/Cross Emblem */}
-                              <path d="M46 28 h8 v44 h-8 z M34 46 h32 v8 h-32 z" fill="#800020" />
-                              <circle cx="50" cy="50" r="8" fill="#1B5E50" />
-                              {/* Text labels */}
-                              <text x="50" y="22" textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#1B5E50" letterSpacing="0.5">SAI BALAJI</text>
-                              <text x="50" y="82" textAnchor="middle" fontSize="5.5" fontWeight="900" fill="#800020" letterSpacing="0.5">DAVANGERE</text>
-                              <text x="50" y="90" textAnchor="middle" fontSize="4.5" fontWeight="bold" fill="#64748b">ESTD 2007</text>
-                            </svg>
+                            {selectedDispatch.laboratory?.logo_url ? (
+                              <img
+                                src={selectedDispatch.laboratory.logo_url}
+                                alt="Laboratory Logo"
+                                className="w-16 h-16 object-contain"
+                              />
+                            ) : (
+                              <svg viewBox="0 0 100 100" className="w-20 h-20">
+                                {/* Outer Maroon Ring */}
+                                <circle cx="50" cy="50" r="46" fill="none" stroke="#800020" strokeWidth="4" />
+                                {/* Inner Dark Green Ring */}
+                                <circle cx="50" cy="50" r="40" fill="none" stroke="#1B5E50" strokeWidth="2.5" />
+                                {/* Inner circle */}
+                                <circle cx="50" cy="50" r="34" fill="#f8fafc" />
+                                {/* Medical Microscope/Cross Emblem */}
+                                <path d="M46 28 h8 v44 h-8 z M34 46 h32 v8 h-32 z" fill="#800020" />
+                                <circle cx="50" cy="50" r="8" fill="#1B5E50" />
+                                {/* Text labels */}
+                                <text x="50" y="22" textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#1B5E50" letterSpacing="0.5">
+                                  {(selectedDispatch.laboratory?.name || currentUser?.labName || "DIAGNOSTICS").slice(0, 14).toUpperCase()}
+                                </text>
+                                <text x="50" y="82" textAnchor="middle" fontSize="5.5" fontWeight="900" fill="#800020" letterSpacing="0.5">
+                                  {(selectedDispatch.laboratory?.address?.split(",")?.[0] || "CLINICAL LAB").slice(0, 14).toUpperCase()}
+                                </text>
+                                <text x="50" y="90" textAnchor="middle" fontSize="4.5" fontWeight="bold" fill="#64748b">
+                                  {selectedDispatch.laboratory?.nabl_accr ? "NABL ACCREDITED" : "ESTABLISHED"}
+                                </text>
+                              </svg>
+                            )}
                           </div>
 
                           {/* Center Title Block */}
                           <div className="text-center flex-1 px-2">
                             <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-wide text-[#800020] uppercase leading-none">
-                              SAI BALAJI DIAGNOSTIC CENTRE
+                              {selectedDispatch.laboratory?.name || currentUser?.labName || "DIAGNOSTIC CENTRE"}
                             </h1>
                             <h2 className="text-base sm:text-lg font-sans font-bold text-[#0E4D55] tracking-tight mt-1">
-                              Sai Balaji Speciality Centre
+                              {selectedDispatch.laboratory?.legal_name || selectedDispatch.laboratory?.name || currentUser?.labName || "Clinical Reference Laboratory"}
                             </h2>
                             <div className="inline-block bg-[#1B5E50] text-white font-bold text-xs px-6 py-1 rounded-sm mt-1.5 shadow-2xs tracking-wide">
                               Investigation Report
@@ -1551,26 +1593,32 @@ function ReportsContent() {
                         </div>
                         <div className="flex">
                           <span className="w-28 font-bold text-black">AGE/SEX</span>
-                          <span className="text-black font-bold">: {selectedDispatch.patient.age_years ?? 21} Yrs / {selectedDispatch.patient.gender || "Male"}</span>
+                          <span className="text-black font-bold">: {selectedDispatch.patient.age_years ?? "-"} Yrs / {selectedDispatch.patient.gender || "Male"}</span>
                         </div>
                         <div className="flex">
                           <span className="w-28 font-bold text-black">REFERRED BY</span>
-                          <span className="text-black font-bold">: {selectedDispatch.order.doctor || "Dr. SELF"}</span>
+                          <span className="text-black font-bold">: {selectedDispatch.order.doctor || "Self / Direct"}</span>
                         </div>
+                        {selectedDispatch.order.ref_center && selectedDispatch.order.ref_center !== "Direct Walk-in" && (
+                          <div className="flex">
+                            <span className="w-28 font-bold text-black">REF. CENTER</span>
+                            <span className="text-black font-bold truncate">: {selectedDispatch.order.ref_center}</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex">
                           <span className="w-36 font-bold text-black">REG/LAB NO.</span>
-                          <span className="font-black text-black">: {selectedDispatch.patient.reg_no || "202653859"} / {selectedDispatch.order.lab_number}</span>
+                          <span className="font-black text-black">: {selectedDispatch.patient.reg_no || selectedDispatch.patient.uhid?.replace("PAT-", "").replace("-", "") || "001"} / {selectedDispatch.order.lab_number}</span>
                         </div>
                         <div className="flex">
                           <span className="w-36 font-bold text-black">DATE OF COLLECTION</span>
-                          <span className="text-black font-bold">: {selectedDispatch.order.date || "15-10-2026"}</span>
+                          <span className="text-black font-bold">: {selectedDispatch.order.date || new Date().toLocaleDateString("en-GB").replace(/\//g, "-")}</span>
                         </div>
                         <div className="flex">
                           <span className="w-36 font-bold text-black">DATE OF REPORT</span>
-                          <span className="text-black font-bold">: {selectedDispatch.order.reported_date || selectedDispatch.order.date || "15-10-2026"}</span>
+                          <span className="text-black font-bold">: {selectedDispatch.order.reported_date || selectedDispatch.order.date || new Date().toLocaleDateString("en-GB").replace(/\//g, "-")}</span>
                         </div>
                       </div>
                     </div>
@@ -1661,10 +1709,10 @@ function ReportsContent() {
                   {/* Full-width Divider Line */}
                   <div className="border-t-2 border-black pt-1">
                     <div className="flex items-center justify-between text-[10px] text-black font-bold">
-                      <div>Dispatched by: {selectedDispatch.dispatched_by || "N.S Harish"}</div>
+                      <div>Dispatched by: {selectedDispatch.dispatched_by || currentUser?.fullName || "Authorized Staff"}</div>
                       <div className="font-black tracking-widest">**** End of Report ****</div>
                       <div>
-                        Printed by: Rakesh M A on {new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-")} at {new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
+                        Printed by: {currentUser?.fullName || "Staff"} on {new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-")} at {new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
                       </div>
                     </div>
                   </div>
@@ -1689,8 +1737,13 @@ function ReportsContent() {
                     {/* Technologist */}
                     <div className="text-right">
                       <div className="font-black text-xs uppercase text-black tracking-wider">
-                        TECHNOLOGIST
+                        {selectedDispatch.verified_by?.designation || "TECHNOLOGIST"}
                       </div>
+                      {selectedDispatch.verified_by?.name && (
+                        <div className="text-[10px] text-black font-semibold mt-0.5">
+                          {selectedDispatch.verified_by.name}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1703,7 +1756,10 @@ function ReportsContent() {
                   {letterheadEnabled && (
                     <div className="mt-2.5 pt-1.5 border-t border-black text-center text-[10px] text-black flex items-center justify-center gap-1 font-bold">
                       <span className="text-black font-black">📍</span>
-                      <span>2537, Opp. Krishna Kala Mandira, M.C.C. &apos;A&apos; Block, DAVANGERE-4. Mobile : 94498 35659, 70191 43450</span>
+                      <span>
+                        {selectedDispatch.laboratory?.address || currentUser?.labName || "Diagnostic Services"}
+                        {selectedDispatch.laboratory?.phone ? ` · Mobile: ${selectedDispatch.laboratory.phone}` : ""}
+                      </span>
                     </div>
                   )}
                 </div>
