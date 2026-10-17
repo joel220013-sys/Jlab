@@ -20,6 +20,7 @@ class ReviewActionRequest(BaseModel):
     remarks: Optional[str] = None
 
 @router.get("/queue", response_model=List[WorklistTestItem])
+@router.get("/pending", response_model=List[WorklistTestItem])
 async def get_pathologist_queue(
     user_context = Depends(require_roles(["PATHOLOGIST", "LAB_ADMIN", "SUPER_ADMIN"])),
     db: AsyncSession = Depends(get_db)

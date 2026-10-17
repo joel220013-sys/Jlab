@@ -111,6 +111,17 @@ async def list_tests(
         "methodology": t.methodology
     } for t, cat in rows]
 
+@router.get("/categories")
+async def list_test_categories(
+    user_context = Depends(get_current_tenant_context),
+    db: AsyncSession = Depends(get_db)
+):
+    _, lab_id = user_context
+    stmt = select(TestCategory).where(TestCategory.laboratory_id == lab_id).order_by(TestCategory.display_order)
+    res = await db.execute(stmt)
+    categories = res.scalars().all()
+    return [{"id": c.id, "name": c.name, "display_order": c.display_order} for c in categories]
+
 @router.get("/{test_id}/parameters")
 async def get_test_parameters(
     test_id: str,

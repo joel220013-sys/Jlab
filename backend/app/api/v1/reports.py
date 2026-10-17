@@ -30,21 +30,31 @@ async def list_reports(
         .outerjoin(Doctor, Order.doctor_id == Doctor.id)
         .where(Report.laboratory_id == lab_id)
         .order_by(Order.created_at.desc())
+        .limit(100)
     )
     rows = (await db.execute(stmt)).all()
+
+    # Batch-fetch all test names across all orders in a single roundtrip (eliminating N+1 query)
+    order_ids = [order.id for _, order, _, _, _ in rows]
+    test_names_map = {}
+    if order_ids:
+        stmt_tests = (
+            select(TestResult.order_id, Test.name)
+            .join(Test, TestResult.test_id == Test.id)
+            .where(TestResult.order_id.in_(order_ids))
+        )
+        for oid, tname in (await db.execute(stmt_tests)).all():
+            if oid not in test_names_map:
+                test_names_map[oid] = []
+            test_names_map[oid].append(tname)
+
     out = []
     for rep, order, patient, inv, doc in rows:
         is_locked = False
         if inv and inv.balance > 0 and not inv.is_credit_override:
             is_locked = True
 
-        # Query all test names for this order
-        stmt_tests = (
-            select(Test.name)
-            .join(TestResult, TestResult.test_id == Test.id)
-            .where(TestResult.order_id == order.id)
-        )
-        test_names = (await db.execute(stmt_tests)).scalars().all()
+        test_names = test_names_map.get(order.id, [])
         tests_str = ", ".join(test_names) if test_names else "GENERAL CLINICAL INVESTIGATIONS"
 
         clean_uhid = patient.uhid.replace("PAT-", "").replace("-", "") if patient.uhid else "000000"

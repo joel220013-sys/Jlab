@@ -119,6 +119,12 @@ async def get_communication_settings(
 ):
     return load_settings()
 
+@router.get("/templates")
+async def get_communication_templates(
+    user_context: tuple = Depends(get_current_tenant_context)
+):
+    return load_settings().get("templates", DEFAULT_SETTINGS["templates"])
+
 @router.post("/settings")
 async def update_communication_settings(
     payload: CommunicationSettingsSchema,
