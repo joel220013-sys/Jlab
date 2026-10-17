@@ -19,8 +19,7 @@ import {
   Share2,
   Barcode as BarcodeIcon,
   ChevronRight,
-  Upload,
-  Image as ImageIcon
+  Upload
 } from "lucide-react";
 import QRCode from "qrcode";
 import { apiFetch } from "@/lib/api";
@@ -319,7 +318,9 @@ function ReportsContent() {
         localStorage.removeItem(tenantKey);
         localStorage.removeItem("jlab_custom_letterhead");
         localStorage.removeItem("pulselab_custom_letterhead");
-      } catch {}
+      } catch (err) {
+        console.error("Failed to remove letterhead from localStorage:", err);
+      }
     }
   };
 
