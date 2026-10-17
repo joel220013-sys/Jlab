@@ -321,21 +321,30 @@ async def provision_new_client_lab(req: ProvisionLabRequest, db: AsyncSession = 
         ]
         
         cat_map = {}
+        cats_to_add = []
         for idx, d_name in enumerate(dept_order, start=1):
-            c_obj = TestCategory(laboratory_id=new_lab.id, name=d_name, display_order=idx)
-            db.add(c_obj)
-            await db.flush()
-            cat_map[d_name] = c_obj
+            c_id = str(uuid.uuid4())
+            c_obj = TestCategory(id=c_id, laboratory_id=new_lab.id, name=d_name, display_order=idx)
+            cats_to_add.append(c_obj)
+            cat_map[d_name] = c_id
+
+        db.add_all(cats_to_add)
+
+        tests_to_add = []
+        params_to_add = []
+        ranges_to_add = []
 
         for dept, t_items in ALL_DEPARTMENTS_TESTS.items():
-            cat = cat_map.get(dept, cat_map["BIOCHEMISTRY"])
+            cat_id = cat_map.get(dept, cat_map["BIOCHEMISTRY"])
             for item in t_items:
                 t_name = str(item["name"]).strip()
                 t_code = str(item["code"]).strip().upper()
+                t_id = str(uuid.uuid4())
 
                 t_obj = Test(
+                    id=t_id,
                     laboratory_id=new_lab.id,
-                    category_id=cat.id,
+                    category_id=cat_id,
                     code=t_code,
                     name=t_name,
                     specimen_type=str(item.get("specimen", "Whole Blood")),
@@ -344,8 +353,7 @@ async def provision_new_client_lab(req: ProvisionLabRequest, db: AsyncSession = 
                     expected_tat_minutes=120,
                     methodology="Automated / Standard Clinical"
                 )
-                db.add(t_obj)
-                await db.flush()
+                tests_to_add.append(t_obj)
                 tests_seeded_count += 1
 
                 # Attach parameters
@@ -373,9 +381,11 @@ async def provision_new_client_lab(req: ProvisionLabRequest, db: AsyncSession = 
                     is_diff = spec[9]
                     crit_l = spec[10] if len(spec) > 10 else None
                     crit_h = spec[11] if len(spec) > 11 else None
+                    p_id = str(uuid.uuid4())
 
                     param_obj = TestParameter(
-                        test_id=t_obj.id,
+                        id=p_id,
+                        test_id=t_id,
                         code=p_code,
                         name=p_name,
                         unit=p_unit,
@@ -387,12 +397,12 @@ async def provision_new_client_lab(req: ProvisionLabRequest, db: AsyncSession = 
                         critical_high=crit_h,
                         is_differential_part=is_diff
                     )
-                    db.add(param_obj)
-                    await db.flush()
+                    params_to_add.append(param_obj)
                     params_seeded_count += 1
 
-                    db.add(ParameterRange(
-                        parameter_id=param_obj.id,
+                    ranges_to_add.append(ParameterRange(
+                        id=str(uuid.uuid4()),
+                        parameter_id=p_id,
                         gender="ALL",
                         min_age_days=0,
                         max_age_days=43800,
@@ -400,6 +410,10 @@ async def provision_new_client_lab(req: ProvisionLabRequest, db: AsyncSession = 
                         reference_high=r_high,
                         textual_reference=txt_ref
                     ))
+
+        db.add_all(tests_to_add)
+        db.add_all(params_to_add)
+        db.add_all(ranges_to_add)
 
     await db.commit()
 
