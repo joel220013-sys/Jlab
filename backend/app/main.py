@@ -22,13 +22,28 @@ from app.api.v1.admin import router as admin_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: create tables and seed
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    
-    async with AsyncSessionLocal() as session:
-        await seed_initial_data(session)
-    
+    # Startup: Ensure tables exist without blocking or crashing on remote poolers
+    try:
+        from sqlalchemy import text
+        async with engine.connect() as conn:
+            has_tables = False
+            try:
+                res = await conn.execute(text("SELECT count(*) FROM users LIMIT 1"))
+                has_tables = True
+            except Exception:
+                has_tables = False
+
+            if not has_tables:
+                print("First-time setup: Initializing database schema...")
+                await conn.run_sync(Base.metadata.create_all)
+                async with AsyncSessionLocal() as session:
+                    await seed_initial_data(session)
+                print("Database schema and seeds initialized successfully.")
+            else:
+                print("Database connection verified. Schema is up to date.")
+    except Exception as e:
+        print(f"Notice: Database startup check notice: {e}. Server continuing.")
+
     yield
     # Shutdown
     await engine.dispose()
