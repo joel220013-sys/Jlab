@@ -564,8 +564,8 @@ function ReportsContent() {
         ))}
 
         {diffGroup.length > 0 && (
-          <tr className="border-b border-dotted border-slate-300">
-            <td colSpan={4} className="pt-1.5 pb-0.5 font-bold text-[10.5px] uppercase text-slate-900 tracking-tight pl-0">
+          <tr className="border-b-2 border-black">
+            <td colSpan={4} className="pt-1.5 pb-0.5 font-black text-[10.5px] uppercase text-black tracking-tight pl-0">
               DIFFERENTIAL COUNT
             </td>
           </tr>
@@ -590,23 +590,23 @@ function ReportsContent() {
 
     return (
       <tr className="hover:bg-slate-50/50 transition-colors">
-        <td className={`py-0.5 pr-2 font-medium uppercase text-slate-900 align-top text-[11px] ${isDifferential ? "pl-3.5" : "pl-0"}`}>
+        <td className={`py-0.5 pr-2 font-semibold uppercase text-black align-top text-[11px] ${isDifferential ? "pl-3.5" : "pl-0"}`}>
           {param.name}
         </td>
-        <td className="py-0.5 pr-2 font-bold align-top text-left whitespace-nowrap text-[11px]">
-          <span className={isAbnormal ? "text-slate-950 font-black" : "text-slate-800"}>
+        <td className="py-0.5 pr-2 font-bold align-top text-left whitespace-nowrap text-[11px] text-black">
+          <span className={isAbnormal ? "text-black font-black" : "text-black font-bold"}>
             {val}
           </span>
           {flag && (
-            <span className="ml-1.5 font-bold text-[10px] text-slate-950 inline-block">
+            <span className="ml-1.5 font-bold text-[10px] text-black inline-block">
               {flag}
             </span>
           )}
         </td>
-        <td className="py-0.5 pr-2 text-slate-700 align-top text-[11px]">
+        <td className="py-0.5 pr-2 text-black font-semibold align-top text-[11px]">
           {param.unit || ""}
         </td>
-        <td className="py-0.5 text-slate-700 align-top whitespace-pre-line text-[10.5px] leading-snug">
+        <td className="py-0.5 text-black font-semibold align-top whitespace-pre-line text-[10.5px] leading-snug">
           {param.reference_range || ""}
         </td>
       </tr>
@@ -1327,21 +1327,21 @@ function ReportsContent() {
                             const { val, flag } = formatResultWithFlag(param.result, param.flag, param.is_abnormal, param.reference_range);
                             return (
                               <tr key={pIdx} className="hover:bg-rose-50/50 transition-colors">
-                                <td className="py-2 px-3.5 uppercase font-medium text-slate-700 pl-6">
+                                <td className="py-2 px-3.5 uppercase font-semibold text-black pl-6">
                                   {param.name}
                                 </td>
-                                <td className="py-2 px-3 font-semibold text-slate-900 flex items-center gap-1.5">
+                                <td className="py-2 px-3 font-bold text-black flex items-center gap-1.5">
                                   <span>{val}</span>
                                   {flag && (
-                                    <span className="text-rose-700 font-black text-[10px]">
+                                    <span className="text-black font-black text-[10px]">
                                       {flag}
                                     </span>
                                   )}
                                 </td>
-                                <td className="py-2 px-3 text-slate-600">
+                                <td className="py-2 px-3 text-black font-semibold">
                                   {param.unit || ""}
                                 </td>
-                                <td className="py-2 px-3 text-slate-600">
+                                <td className="py-2 px-3 text-black font-semibold">
                                   {param.reference_range || ""}
                                 </td>
                               </tr>
@@ -1542,42 +1542,42 @@ function ReportsContent() {
                   )}
 
                   {/* PATIENT INFORMATION BOX (Exact AyusLab Two-Column Grid) */}
-                  <div className="border border-slate-400 p-2.5 mb-3 text-[11px] leading-tight font-sans report-patient-section">
+                  <div className="border-2 border-black p-2.5 mb-3 text-[11px] leading-tight font-sans report-patient-section text-black">
                     <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
                       <div className="space-y-1">
                         <div className="flex">
-                          <span className="w-28 font-bold text-slate-900">Name</span>
-                          <span className="font-bold text-slate-950">: {selectedDispatch.patient.name}</span>
+                          <span className="w-28 font-bold text-black">Name</span>
+                          <span className="font-black text-black">: {selectedDispatch.patient.name}</span>
                         </div>
                         <div className="flex">
-                          <span className="w-28 font-bold text-slate-900">AGE/SEX</span>
-                          <span className="text-slate-900">: {selectedDispatch.patient.age_years ?? 21} Yrs / {selectedDispatch.patient.gender || "Male"}</span>
+                          <span className="w-28 font-bold text-black">AGE/SEX</span>
+                          <span className="text-black font-bold">: {selectedDispatch.patient.age_years ?? 21} Yrs / {selectedDispatch.patient.gender || "Male"}</span>
                         </div>
                         <div className="flex">
-                          <span className="w-28 font-bold text-slate-900">REFERRED BY</span>
-                          <span className="text-slate-900 font-medium">: {selectedDispatch.order.doctor || "Dr. SELF"}</span>
+                          <span className="w-28 font-bold text-black">REFERRED BY</span>
+                          <span className="text-black font-bold">: {selectedDispatch.order.doctor || "Dr. SELF"}</span>
                         </div>
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex">
-                          <span className="w-36 font-bold text-slate-900">REG/LAB NO.</span>
-                          <span className="font-bold text-slate-950">: {selectedDispatch.patient.reg_no || "202653859"} / {selectedDispatch.order.lab_number}</span>
+                          <span className="w-36 font-bold text-black">REG/LAB NO.</span>
+                          <span className="font-black text-black">: {selectedDispatch.patient.reg_no || "202653859"} / {selectedDispatch.order.lab_number}</span>
                         </div>
                         <div className="flex">
-                          <span className="w-36 font-bold text-slate-900">DATE OF COLLECTION</span>
-                          <span className="text-slate-900">: {selectedDispatch.order.date || "15-10-2026"}</span>
+                          <span className="w-36 font-bold text-black">DATE OF COLLECTION</span>
+                          <span className="text-black font-bold">: {selectedDispatch.order.date || "15-10-2026"}</span>
                         </div>
                         <div className="flex">
-                          <span className="w-36 font-bold text-slate-900">DATE OF REPORT</span>
-                          <span className="text-slate-900">: {selectedDispatch.order.reported_date || selectedDispatch.order.date || "15-10-2026"}</span>
+                          <span className="w-36 font-bold text-black">DATE OF REPORT</span>
+                          <span className="text-black font-bold">: {selectedDispatch.order.reported_date || selectedDispatch.order.date || "15-10-2026"}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* TABLE COLUMN HEADERS & BODY IN A BULLETPROOF FIXED TABLE */}
-                  <table className="w-full border-collapse table-fixed text-[11px] leading-tight text-slate-900">
+                  <table className="w-full border-collapse table-fixed text-[11px] leading-tight text-black">
                     <colgroup>
                       <col style={{ width: "38%" }} />
                       <col style={{ width: "20%" }} />
@@ -1585,11 +1585,11 @@ function ReportsContent() {
                       <col style={{ width: "28%" }} />
                     </colgroup>
                     <thead>
-                      <tr className="border-t border-b border-slate-700 text-[11px] font-bold text-slate-950 uppercase tracking-tight">
-                        <th className="py-1.5 text-left font-bold pl-0">TEST PARAMETER</th>
-                        <th className="py-1.5 text-left font-bold">RESULT</th>
-                        <th className="py-1.5 text-left font-bold">UNIT</th>
-                        <th className="py-1.5 text-left font-bold">REFERENCE RANGE</th>
+                      <tr className="border-t-2 border-b-2 border-black text-[11px] font-black text-black uppercase tracking-tight">
+                        <th className="py-1.5 text-left font-black text-black pl-0">TEST PARAMETER</th>
+                        <th className="py-1.5 text-left font-black text-black">RESULT</th>
+                        <th className="py-1.5 text-left font-black text-black">UNIT</th>
+                        <th className="py-1.5 text-left font-black text-black">REFERENCE RANGE</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1597,7 +1597,7 @@ function ReportsContent() {
                       {groupByDepartment ? (
                         groupedDepartmentList.length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="py-8 text-center text-slate-500 italic font-medium">
+                            <td colSpan={4} className="py-8 text-center text-black font-semibold italic">
                               No test results have been entered for this report yet.
                             </td>
                           </tr>
@@ -1605,8 +1605,8 @@ function ReportsContent() {
                           groupedDepartmentList.map((deptGroup, dIdx) => (
                             <Fragment key={dIdx}>
                               {/* Prominent Centered Department Heading */}
-                              <tr className="border-b border-slate-300">
-                                <td colSpan={4} className="py-1.5 text-center font-bold text-xs uppercase tracking-widest text-slate-950 pt-2">
+                              <tr className="border-b-2 border-black">
+                                <td colSpan={4} className="py-1.5 text-center font-black text-xs uppercase tracking-widest text-black pt-2">
                                   {deptGroup.department}
                                 </td>
                               </tr>
@@ -1614,8 +1614,8 @@ function ReportsContent() {
                               {/* Tests under this Department */}
                               {deptGroup.tests.map((testSec, tIdx) => (
                                 <Fragment key={tIdx}>
-                                  <tr className="border-b border-slate-400">
-                                    <td colSpan={4} className="pt-2 pb-0.5 font-bold text-[11px] uppercase text-slate-950 tracking-tight">
+                                  <tr className="border-b border-black">
+                                    <td colSpan={4} className="pt-2 pb-0.5 font-black text-[11px] uppercase text-black tracking-tight">
                                       {testSec.test_name}
                                     </td>
                                   </tr>
@@ -1628,15 +1628,15 @@ function ReportsContent() {
                       ) : (
                         validTestsList.length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="py-8 text-center text-slate-500 italic font-medium">
+                            <td colSpan={4} className="py-8 text-center text-black font-semibold italic">
                               No test results have been entered for this report yet.
                             </td>
                           </tr>
                         ) : (
                           validTestsList.map((testSec, tIdx) => (
                             <Fragment key={tIdx}>
-                              <tr className="border-b border-slate-400">
-                                <td colSpan={4} className="pt-2 pb-0.5 font-bold text-[11px] uppercase text-slate-950 tracking-tight">
+                              <tr className="border-b border-black">
+                                <td colSpan={4} className="pt-2 pb-0.5 font-black text-[11px] uppercase text-black tracking-tight">
                                   {testSec.test_name}
                                 </td>
                               </tr>
@@ -1652,17 +1652,17 @@ function ReportsContent() {
                 {/* =========================================================================
                     FOOTER (Legend, Dispatcher, End of Report, Technologist & Address)
                 ========================================================================= */}
-                <div className="mt-auto pt-5 font-sans report-footer-section">
+                <div className="mt-auto pt-5 font-sans report-footer-section text-black">
                   {/* Legend */}
-                  <div className="text-[10px] text-slate-600 mb-1">
+                  <div className="text-[10px] text-black font-semibold mb-1">
                     L- Low, H- High
                   </div>
 
                   {/* Full-width Divider Line */}
-                  <div className="border-t border-slate-700 pt-1">
-                    <div className="flex items-center justify-between text-[10px] text-slate-700">
+                  <div className="border-t-2 border-black pt-1">
+                    <div className="flex items-center justify-between text-[10px] text-black font-bold">
                       <div>Dispatched by: {selectedDispatch.dispatched_by || "N.S Harish"}</div>
-                      <div className="font-bold tracking-widest">**** End of Report ****</div>
+                      <div className="font-black tracking-widest">**** End of Report ****</div>
                       <div>
                         Printed by: Rakesh M A on {new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-")} at {new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
                       </div>
@@ -1677,32 +1677,32 @@ function ReportsContent() {
                         <img 
                           src={qrCodeDataUrl} 
                           alt="QR Verification" 
-                          className="w-12 h-12 border border-slate-200 p-0.5"
+                          className="w-12 h-12 border border-black p-0.5"
                         />
                       )}
-                      <div className="text-[9px] text-slate-500">
-                        <div>Authenticity QR Verified</div>
+                      <div className="text-[9px] text-black font-medium">
+                        <div className="font-bold">Authenticity QR Verified</div>
                         <div className="font-mono">{selectedDispatch.public_verification_hash?.slice(0, 12)}...</div>
                       </div>
                     </div>
 
                     {/* Technologist */}
                     <div className="text-right">
-                      <div className="font-bold text-xs uppercase text-slate-900 tracking-wide">
+                      <div className="font-black text-xs uppercase text-black tracking-wider">
                         TECHNOLOGIST
                       </div>
                     </div>
                   </div>
 
                   {/* Page Count */}
-                  <div className="text-center text-[10px] text-slate-500 mt-1.5">
+                  <div className="text-center text-[10px] text-black font-bold mt-1.5">
                     Page 1 of 1
                   </div>
 
                   {/* Bottom Address Banner (When letterheadEnabled is true) */}
                   {letterheadEnabled && (
-                    <div className="mt-2.5 pt-1.5 border-t border-slate-300 text-center text-[10px] text-slate-700 flex items-center justify-center gap-1 font-medium">
-                      <span className="text-[#800020] font-bold">📍</span>
+                    <div className="mt-2.5 pt-1.5 border-t border-black text-center text-[10px] text-black flex items-center justify-center gap-1 font-bold">
+                      <span className="text-black font-black">📍</span>
                       <span>2537, Opp. Krishna Kala Mandira, M.C.C. &apos;A&apos; Block, DAVANGERE-4. Mobile : 94498 35659, 70191 43450</span>
                     </div>
                   )}
@@ -1786,6 +1786,17 @@ function ReportsContent() {
             height: auto !important;
             overflow: visible !important;
             background: #ffffff !important;
+          }
+
+          #printable-report, 
+          #printable-report table,
+          #printable-report td, 
+          #printable-report th, 
+          #printable-report span, 
+          #printable-report div,
+          #printable-report p {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
           }
 
           .report-header-section,
