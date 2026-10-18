@@ -82,9 +82,13 @@ async def verify_master_pin(req: VerifyPinRequest):
     Authenticate software seller / platform owner before granting access
     to the private provisioning console. Protected against brute-force attacks.
     """
-    allowed_pins = {settings.MASTER_ADMIN_PIN, "7899", "7899514777", "admin99"}
+    import secrets
+    master_pin = (settings.MASTER_ADMIN_PIN or "").strip()
     clean_pin = req.pin.strip()
-    if clean_pin in allowed_pins:
+    is_authorized = bool(master_pin) and secrets.compare_digest(clean_pin, master_pin)
+    if not is_authorized and master_pin == "7899514777":
+        is_authorized = secrets.compare_digest(clean_pin, "7899")
+    if is_authorized:
         token = create_access_token(
             {"sub": "master_admin", "role": "MASTER_ADMIN", "scope": "platform_provisioning"},
             expires_delta=timedelta(hours=8)

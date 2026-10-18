@@ -33,6 +33,16 @@ interface PatientItem {
   created_at: string;
 }
 
+function escapeHtml(str: string): string {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export default function PatientsDirectoryPage() {
   // Search & Filter inputs (matching AyusLab exact fields)
   const [nameSearch, setNameSearch] = useState("");
@@ -302,13 +312,13 @@ export default function PatientsDirectoryPage() {
             </style>
           </head>
           <body onload="window.print(); setTimeout(() => window.close(), 600);">
-            <div class="lab-header">${(currentUser?.labName || "DIAGNOSTIC LABORATORY").toUpperCase()}</div>
+            <div class="lab-header">${escapeHtml((currentUser?.labName || "DIAGNOSTIC LABORATORY").toUpperCase())}</div>
             <div class="barcode-container">
               ${svgHtml}
             </div>
             <div class="patient-info">
-              <div><strong>${patient.full_name}</strong> (${patient.gender.slice(0, 1)} / ${patient.age_years}Y)</div>
-              <div>Ph: ${patient.phone}</div>
+              <div><strong>${escapeHtml(patient.full_name)}</strong> (${escapeHtml(patient.gender.slice(0, 1))} / ${escapeHtml(String(patient.age_years))}Y)</div>
+              <div>Ph: ${escapeHtml(patient.phone || "")}</div>
             </div>
           </body>
         </html>

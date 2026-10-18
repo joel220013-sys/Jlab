@@ -1947,7 +1947,7 @@ function TechnicianWorkbenchContent() {
                       printWindow.document.write(`
                         <html>
                           <head>
-                            <title>Report - ${currentOrder.lab_number}</title>
+                            <title>Report - ${(currentOrder.lab_number || "").replace(/[^a-zA-Z0-9_-]/g, "")}</title>
                             <style>
                               @page { size: A4; margin: 15mm; }
                               body { font-family: Arial, sans-serif; color: #111; margin: 0; padding: 10px; }

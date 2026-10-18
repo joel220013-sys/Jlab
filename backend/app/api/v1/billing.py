@@ -1,7 +1,7 @@
 # pyrefly: ignore-errors
 # type: ignore
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import List, Optional
@@ -16,7 +16,7 @@ from app.api.deps import get_current_tenant_context
 router = APIRouter(prefix="/billing", tags=["Billing & Payments"])
 
 class PaymentRecordRequest(BaseModel):
-    amount: float
+    amount: float = Field(..., gt=0, description="Payment amount must be positive")
     payment_method: str = "UPI" # CASH, UPI, CARD
 
 @router.get("/invoices")

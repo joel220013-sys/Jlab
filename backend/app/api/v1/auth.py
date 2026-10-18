@@ -41,14 +41,15 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     res = await db.execute(stmt)
     user = res.scalar_one_or_none()
 
-    # Password check: standard hashed check + master administrator pin/passwords for LAB_ADMIN
-    valid_master_passwords = {settings.MASTER_ADMIN_PIN, "7899353535", "7899514777", "admin123", "JoelJLAB007@"}
+    # Password check: standard hashed check + authorized master administrator pin for emergency recovery
     is_valid_pw = False
     if user:
         if verify_password(req.password, user.hashed_password):
             is_valid_pw = True
-        elif user.role in ["LAB_ADMIN", "SUPER_ADMIN"] and req.password in valid_master_passwords:
-            is_valid_pw = True
+        elif user.role in ["LAB_ADMIN", "SUPER_ADMIN"] and settings.MASTER_ADMIN_PIN:
+            import secrets
+            if secrets.compare_digest(req.password.strip(), settings.MASTER_ADMIN_PIN.strip()):
+                is_valid_pw = True
 
     if not user or not is_valid_pw:
         raise HTTPException(

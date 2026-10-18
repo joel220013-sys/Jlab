@@ -13,6 +13,7 @@ from app.models.test_catalog import Test, TestParameter, ParameterRange, TestCat
 from app.models.order import Order, Sample, Invoice
 from app.models.result import TestResult, ResultValue, Report, ReportStatus
 from app.api.deps import get_current_tenant_context, require_roles
+from app.core.rate_limit import limit_general_api
 
 router = APIRouter(prefix="/reports", tags=["Reports & Public QR Verification"])
 
@@ -107,7 +108,7 @@ async def list_reports(
     return out
 
 
-@router.get("/verify/{pub_hash}")
+@router.get("/verify/{pub_hash}", dependencies=[Depends(limit_general_api)])
 async def public_verify_report(pub_hash: str, db: AsyncSession = Depends(get_db)):
     """
     Public QR code verification endpoint.
@@ -437,7 +438,10 @@ async def override_billing_lock(
     stmt_inv = select(Invoice).where(Invoice.order_id == order_id, Invoice.laboratory_id == lab_id)
     inv = (await db.execute(stmt_inv)).scalar_one_or_none()
     if not inv:
-        stmt_rep = select(Report).where((Report.id == order_id) | (Report.report_number == order_id))
+        stmt_rep = select(Report).where(
+            (Report.id == order_id) | (Report.report_number == order_id),
+            Report.laboratory_id == lab_id
+        )
         rep_obj = (await db.execute(stmt_rep)).scalar_one_or_none()
         if rep_obj:
             order_id = rep_obj.order_id
@@ -449,7 +453,7 @@ async def override_billing_lock(
             ord_obj = (await db.execute(stmt_ord)).scalar_one_or_none()
             if ord_obj:
                 order_id = ord_obj.id
-        stmt_inv = select(Invoice).where(Invoice.order_id == order_id)
+        stmt_inv = select(Invoice).where(Invoice.order_id == order_id, Invoice.laboratory_id == lab_id)
         inv = (await db.execute(stmt_inv)).scalar_one_or_none()
 
     if not inv:
@@ -458,7 +462,7 @@ async def override_billing_lock(
     inv.is_credit_override = True
     inv.status = "CREDIT_APPROVED"
 
-    stmt_rep = select(Report).where(Report.order_id == order_id)
+    stmt_rep = select(Report).where(Report.order_id == order_id, Report.laboratory_id == lab_id)
     rep = (await db.execute(stmt_rep)).scalar_one_or_none()
     if rep:
         rep.is_locked_for_billing = False

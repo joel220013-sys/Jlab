@@ -46,4 +46,12 @@ settings = Settings()
 if isinstance(settings.CORS_ORIGINS, str):
     settings.CORS_ORIGINS = [orig.strip() for orig in settings.CORS_ORIGINS.split(",") if orig.strip()]
 
+# Defensive runtime guard: ensure production never runs on static development secret
+if settings.ENVIRONMENT == "production" and (not settings.SECRET_KEY or settings.SECRET_KEY == "pulselab-super-secret-development-key-2026"):
+    import warnings
+    import secrets
+    warnings.warn("[SECURITY ALERT] Production environment detected with default SECRET_KEY! Generating ephemeral cryptographically secure key.")
+    settings.SECRET_KEY = secrets.token_hex(32)
+
+
 
