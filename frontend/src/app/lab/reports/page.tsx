@@ -413,8 +413,18 @@ function ReportsContent() {
   const handleWhatsAppShare = async (phone: string, patientName: string, verifyHash: string, customLabName?: string) => {
     const cleanPhone = phone.replace(/[^0-9]/g, "");
     const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
-    const verifyLink = `${window.location.origin}/verify/${verifyHash}`;
-    const activeLabName = customLabName || selectedDispatch?.laboratory?.name || currentUser?.labName || "Diagnostic Centre";
+    let activeLabName = customLabName || selectedDispatch?.laboratory?.name || currentUser?.labName;
+    if (!activeLabName && typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("jlab_user") || localStorage.getItem("pulselab_user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          if (u?.labName) activeLabName = u.labName;
+        }
+      } catch {}
+    }
+    if (!activeLabName) activeLabName = "Diagnostic Centre";
+
     const message = encodeURIComponent(
       `Hello ${patientName},\nYour diagnostic test report from ${activeLabName} is ready for viewing and download.\n\nView Report: ${verifyLink}\n\nThank you for choosing ${activeLabName}.`
     );

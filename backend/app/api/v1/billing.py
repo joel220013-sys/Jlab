@@ -10,7 +10,7 @@ from app.database import get_db
 from app.models.order import Order, Invoice, InvoiceStatus
 from app.models.patient import Patient, Doctor
 from app.models.result import Report
-from app.models.laboratory import Laboratory
+from app.models.tenant import Laboratory
 from app.api.deps import get_current_tenant_context
 
 router = APIRouter(prefix="/billing", tags=["Billing & Payments"])
