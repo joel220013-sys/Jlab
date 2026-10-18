@@ -17,6 +17,7 @@ import {
   MessageSquare,
   Bell,
   Plus,
+  Settings,
   Menu,
   X
 } from "lucide-react";
@@ -135,6 +136,11 @@ export function TopNavbar() {
       href: "/lab/summaries", 
       icon: BarChart3 
     },
+    { 
+      label: "Settings", 
+      href: "/lab/settings", 
+      icon: Settings 
+    },
   ];
 
   const getInitials = (name: string) => {
@@ -235,13 +241,26 @@ export function TopNavbar() {
         {/* Right Side Widgets: Tenant Lab, Notifications, User Profile & Logout */}
         <div className="flex items-center gap-2 shrink-0">
           {/* Tenant Lab Context Pill */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#470c1b] border border-rose-800/40 text-xs">
+          <Link
+            href="/lab/settings"
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#470c1b] border border-rose-800/40 text-xs hover:bg-[#5a1123] transition-colors"
+            title="Edit Laboratory Details & Settings"
+          >
             <Building2 className="w-3 h-3 text-rose-300 shrink-0" />
             <span className="font-semibold text-rose-100 truncate max-w-[160px] text-[11px]" title={userInfo.labName}>
               {userInfo.labName}
             </span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" title="Licensed Active"></span>
-          </div>
+          </Link>
+
+          {/* Quick Settings Button */}
+          <Link
+            href="/lab/settings"
+            className="p-1.5 text-rose-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            title="Lab & Profile Settings"
+          >
+            <Settings className="w-4 h-4" />
+          </Link>
 
           {/* Notifications Bell */}
           <button 
