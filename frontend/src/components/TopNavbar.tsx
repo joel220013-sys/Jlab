@@ -19,7 +19,8 @@ import {
   Plus,
   Settings,
   Menu,
-  X
+  X,
+  Clock
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
@@ -93,6 +94,11 @@ export function TopNavbar() {
       href: "/lab/dashboard", 
       icon: Activity,
       exact: true
+    },
+    { 
+      label: "Tracking Queue", 
+      href: "/lab/sample-tracking", 
+      icon: Clock 
     },
     { 
       label: "Patients", 

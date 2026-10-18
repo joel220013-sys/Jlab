@@ -262,14 +262,14 @@ async def list_orders(
     db: AsyncSession = Depends(get_db)
 ):
     _, lab_id = user_context
-    stmt = select(Order).where(Order.laboratory_id == lab_id).order_by(Order.created_at.desc()).limit(50)
+    stmt = select(Order).where(Order.laboratory_id == lab_id).order_by(Order.created_at.desc()).limit(200)
     res = await db.execute(stmt)
     orders = res.scalars().all()
 
     out = []
     for o in orders:
         stmt_p = select(Patient).where(Patient.id == o.patient_id)
-        p = (await db.execute(stmt_p)).scalar_one()
+        p = (await db.execute(stmt_p)).scalar_one_or_none()
         stmt_s = select(Sample).where(Sample.order_id == o.id)
         samples = (await db.execute(stmt_s)).scalars().all()
         stmt_inv = select(Invoice).where(Invoice.order_id == o.id)
@@ -279,9 +279,9 @@ async def list_orders(
             id=o.id,
             order_number=o.order_number,
             lab_number=o.lab_number,
-            patient_id=p.id,
-            patient_name=p.full_name,
-            patient_uhid=p.uhid,
+            patient_id=p.id if p else o.patient_id,
+            patient_name=p.full_name if p else "Patient",
+            patient_uhid=p.uhid if p else "—",
             total_amount=float(o.total_amount),
             discount_amount=float(o.discount_amount),
             final_amount=float(o.final_amount),
