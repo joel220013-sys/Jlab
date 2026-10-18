@@ -88,7 +88,7 @@ async def approve_test_result(
     tr.verified_at = datetime.utcnow()
 
     # Update Report status to APPROVED
-    stmt_rep = select(Report).where(Report.order_id == tr.order_id)
+    stmt_rep = select(Report).where(Report.order_id == tr.order_id, Report.laboratory_id == lab_id)
     rep = (await db.execute(stmt_rep)).scalar_one_or_none()
     if rep:
         rep.status = ReportStatus.APPROVED
@@ -99,12 +99,12 @@ async def approve_test_result(
             from app.api.v1.communication import load_settings, append_log
             from app.models.order import Order
             from app.models.patient import Patient
-            comm_settings = load_settings()
+            comm_settings = load_settings(lab_id=str(lab_id) if lab_id else None)
             if comm_settings.get("auto_send_on_approval", True):
-                stmt_ord = select(Order).where(Order.id == tr.order_id)
+                stmt_ord = select(Order).where(Order.id == tr.order_id, Order.laboratory_id == lab_id)
                 ord_obj = (await db.execute(stmt_ord)).scalar_one_or_none()
                 if ord_obj:
-                    stmt_pat = select(Patient).where(Patient.id == ord_obj.patient_id)
+                    stmt_pat = select(Patient).where(Patient.id == ord_obj.patient_id, Patient.laboratory_id == lab_id)
                     pat_obj = (await db.execute(stmt_pat)).scalar_one_or_none()
                     lab_obj = (await db.execute(select(Laboratory).where(Laboratory.id == lab_id))).scalar_one_or_none()
                     current_lab_name = lab_obj.name if lab_obj else "Diagnostic Centre"
@@ -123,6 +123,7 @@ async def approve_test_result(
                         )
                         append_log({
                             "id": f"log-{int(datetime.now().timestamp() * 1000)}",
+                            "laboratory_id": str(lab_id) if lab_id else "",
                             "timestamp": datetime.now().strftime("%d-%m-%Y %I:%M %p"),
                             "patient_name": pat_obj.full_name,
                             "phone": clean_phone,

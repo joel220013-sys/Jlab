@@ -269,7 +269,7 @@ export default function PatientsDirectoryPage() {
         <!DOCTYPE html>
         <html>
           <head>
-            <title>UHID Barcode - ${patient.uhid}</title>
+            <title>UHID Barcode - ${escapeHtml(patient.uhid)}</title>
             <style>
               @page {
                 size: 50mm 30mm;

@@ -77,7 +77,7 @@ async def record_payment(
     if inv.balance == 0.0:
         inv.status = InvoiceStatus.PAID
         # Unlock report!
-        stmt_rep = select(Report).where(Report.order_id == inv.order_id)
+        stmt_rep = select(Report).where(Report.order_id == inv.order_id, Report.laboratory_id == lab_id)
         rep = (await db.execute(stmt_rep)).scalar_one_or_none()
         if rep:
             rep.is_locked_for_billing = False

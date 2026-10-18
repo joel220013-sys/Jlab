@@ -128,6 +128,11 @@ async def get_test_parameters(
     user_context = Depends(get_current_tenant_context),
     db: AsyncSession = Depends(get_db)
 ):
+    _, lab_id = user_context
+    test_exists = (await db.execute(select(Test.id).where(Test.id == test_id, Test.laboratory_id == lab_id))).scalar_one_or_none()
+    if not test_exists:
+        raise HTTPException(status_code=404, detail="Test not found")
+
     stmt = (
         select(TestParameter, ParameterRange)
         .outerjoin(ParameterRange, ParameterRange.parameter_id == TestParameter.id)

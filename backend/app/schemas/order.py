@@ -1,6 +1,6 @@
 # pyrefly: ignore-errors
 # type: ignore
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 from app.schemas.patient import PatientCreate
@@ -18,11 +18,11 @@ class OrderCreate(BaseModel):
     clinical_history: Optional[str] = None
     
     # Billing details
-    total_amount: Optional[float] = None
+    total_amount: Optional[float] = Field(default=None, ge=0.0)
     custom_prices: Optional[dict[str, float]] = None
-    discount_amount: float = 0.00
+    discount_amount: float = Field(default=0.0, ge=0.0)
     payment_method: str = "UPI" # CASH, UPI, CARD, CREDIT
-    initial_payment: float = 0.00
+    initial_payment: float = Field(default=0.0, ge=0.0)
 
 class SampleOut(BaseModel):
     id: str

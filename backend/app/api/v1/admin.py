@@ -86,8 +86,6 @@ async def verify_master_pin(req: VerifyPinRequest):
     master_pin = (settings.MASTER_ADMIN_PIN or "").strip()
     clean_pin = req.pin.strip()
     is_authorized = bool(master_pin) and secrets.compare_digest(clean_pin, master_pin)
-    if not is_authorized and master_pin == "7899514777":
-        is_authorized = secrets.compare_digest(clean_pin, "7899")
     if is_authorized:
         token = create_access_token(
             {"sub": "master_admin", "role": "MASTER_ADMIN", "scope": "platform_provisioning"},
@@ -502,6 +500,5 @@ async def reset_lab_admin_password(lab_id: str, req: ResetPasswordRequest, db: A
     return {
         "success": True,
         "message": f"Password reset successfully for admin '{admin_user.username}'",
-        "username": admin_user.username,
-        "new_password": req.new_password.strip()
+        "username": admin_user.username
     }

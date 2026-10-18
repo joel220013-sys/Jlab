@@ -145,7 +145,7 @@ async def get_patient_detail(
     from app.models.order import Order
     stmt_orders = (
         select(Order)
-        .where(Order.patient_id == patient_id)
+        .where(Order.patient_id == patient_id, Order.laboratory_id == lab_id)
         .order_by(Order.created_at.desc())
     )
     orders = (await db.execute(stmt_orders)).scalars().all()

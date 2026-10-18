@@ -103,7 +103,9 @@ export default function CommunicationPage() {
             );
           }
         }
-      } catch {}
+      } catch (err) {
+        console.debug("Failed to prefill lab name in test alert", err);
+      }
     }
     fetchData();
   }, []);

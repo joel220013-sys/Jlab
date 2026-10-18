@@ -342,13 +342,6 @@ function TechnicianWorkbenchContent() {
     return currentOrder.tests.filter(t => t.category === selectedCategory);
   }, [currentOrder, selectedCategory]);
 
-  // Active test state alias
-  const activeTestState = activeTestForEntry ? testStateMap[activeTestForEntry.test_result_id] : null;
-  const parameters = activeTestState?.parameters || [];
-  const paramValues = activeTestState?.values || {};
-  const technicianNotes = activeTestState?.notes || "";
-  const loadingParams = activeTestState?.loading || false;
-
   // Save current test result (with option to advance to next test in queue)
   const handleSaveCurrentTest = async (isDraft = false, advanceToNext = false) => {
     if (!activeTestForEntry) return;
@@ -421,11 +414,6 @@ function TechnicianWorkbenchContent() {
     } finally {
       setSavingResult(false);
     }
-  };
-
-  // Backwards compatibility alias
-  const handleSaveResult = async (isDraft = false) => {
-    return handleSaveCurrentTest(isDraft, false);
   };
 
   // Save all tests simultaneously in "All Tests Sheet" mode
@@ -889,11 +877,7 @@ function TechnicianWorkbenchContent() {
                             <div className="inline-flex items-center gap-2">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  const list = filteredTests.length > 0 ? filteredTests : (currentOrder?.tests || []);
-                                  const idx = list.findIndex(t => t.test_result_id === test.test_result_id);
-                                  handleOpenBatchResultEntry(list, idx >= 0 ? idx : 0);
-                                }}
+                                onClick={() => handleOpenResultEntry(test)}
                                 className="bg-[#5E1224] hover:bg-[#721C24] text-white font-bold text-[11px] px-3 py-1 rounded shadow-2xs transition-colors cursor-pointer"
                               >
                                 {isEntered ? "Edit result" : "Enter result"}

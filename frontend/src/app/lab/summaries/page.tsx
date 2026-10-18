@@ -185,7 +185,9 @@ function DayClosingSummaryContent() {
             }));
           }
         }
-      } catch {}
+      } catch (err) {
+        console.debug("Failed to prefill lab name in summary", err);
+      }
     }
     fetchSummary();
   }, []);

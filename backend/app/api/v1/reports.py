@@ -119,9 +119,12 @@ async def public_verify_report(pub_hash: str, db: AsyncSession = Depends(get_db)
     if not report:
         raise HTTPException(status_code=404, detail="Invalid verification hash. Report authenticity cannot be verified.")
 
-    lab = (await db.execute(select(Laboratory).where(Laboratory.id == report.laboratory_id))).scalar_one()
-    order = (await db.execute(select(Order).where(Order.id == report.order_id))).scalar_one()
-    patient = (await db.execute(select(Patient).where(Patient.id == order.patient_id))).scalar_one()
+    lab = (await db.execute(select(Laboratory).where(Laboratory.id == report.laboratory_id))).scalar_one_or_none()
+    order = (await db.execute(select(Order).where(Order.id == report.order_id))).scalar_one_or_none()
+    patient = (await db.execute(select(Patient).where(Patient.id == order.patient_id))).scalar_one_or_none() if order else None
+
+    if not lab or not order or not patient:
+        raise HTTPException(status_code=404, detail="Associated report records could not be verified.")
 
     # Approving pathologist info
     stmt_tr = select(TestResult).where(TestResult.order_id == order.id, TestResult.status == "VERIFIED")
@@ -186,17 +189,23 @@ async def get_report_data(
         ord_obj = (await db.execute(stmt_ord)).scalar_one_or_none()
         if ord_obj:
             order_id = ord_obj.id
-            report = (await db.execute(select(Report).where(Report.order_id == order_id))).scalar_one_or_none()
+            report = (await db.execute(select(Report).where(Report.order_id == order_id, Report.laboratory_id == lab_id))).scalar_one_or_none()
 
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
     order_id = report.order_id
-    lab = (await db.execute(select(Laboratory).where(Laboratory.id == lab_id))).scalar_one()
-    order = (await db.execute(select(Order).where(Order.id == order_id))).scalar_one()
-    patient = (await db.execute(select(Patient).where(Patient.id == order.patient_id))).scalar_one()
-    invoice = (await db.execute(select(Invoice).where(Invoice.order_id == order_id))).scalar_one_or_none()
-    doctor = (await db.execute(select(Doctor).where(Doctor.id == order.doctor_id))).scalar_one_or_none()
+    lab = (await db.execute(select(Laboratory).where(Laboratory.id == lab_id))).scalar_one_or_none()
+    order = (await db.execute(select(Order).where(Order.id == order_id, Order.laboratory_id == lab_id))).scalar_one_or_none()
+    if not lab or not order:
+        raise HTTPException(status_code=404, detail="Order or laboratory record not found")
+
+    patient = (await db.execute(select(Patient).where(Patient.id == order.patient_id, Patient.laboratory_id == lab_id))).scalar_one_or_none()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient record not found")
+
+    invoice = (await db.execute(select(Invoice).where(Invoice.order_id == order_id, Invoice.laboratory_id == lab_id))).scalar_one_or_none()
+    doctor = (await db.execute(select(Doctor).where(Doctor.id == order.doctor_id, Doctor.laboratory_id == lab_id))).scalar_one_or_none() if order.doctor_id else None
 
     # Enforce Report-Locked Billing Check
     is_locked = False
@@ -205,7 +214,7 @@ async def get_report_data(
         report.is_locked_for_billing = True
 
     # Fetch tests and result parameter values
-    stmt_results = select(TestResult).where(TestResult.order_id == order_id)
+    stmt_results = select(TestResult).where(TestResult.order_id == order_id, TestResult.laboratory_id == lab_id)
     results = (await db.execute(stmt_results)).scalars().all()
 
     test_sections = []
@@ -303,7 +312,7 @@ async def get_report_data(
     # Only real past orders for this patient are returned (no mock dates)
 
     # Approving pathologist info
-    stmt_tr = select(TestResult).where(TestResult.order_id == order_id)
+    stmt_tr = select(TestResult).where(TestResult.order_id == order_id, TestResult.laboratory_id == lab_id)
     results_list = (await db.execute(stmt_tr)).scalars().all()
     
     pathologist_name = "Medical Officer"

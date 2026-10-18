@@ -16,8 +16,7 @@ import {
   IndianRupee,
   RefreshCw,
   Inbox,
-  Printer,
-  FileText
+  Printer
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import BarcodeGenerator from "@/components/BarcodeGenerator";
