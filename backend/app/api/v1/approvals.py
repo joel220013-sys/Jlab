@@ -7,6 +7,7 @@ from sqlalchemy import select
 from typing import List, Optional
 from datetime import datetime
 from app.database import get_db
+from app.models.tenant import Laboratory
 from app.models.patient import Patient, Doctor
 from app.models.test_catalog import Test
 from app.models.order import Order, Sample
@@ -105,18 +106,20 @@ async def approve_test_result(
                 if ord_obj:
                     stmt_pat = select(Patient).where(Patient.id == ord_obj.patient_id)
                     pat_obj = (await db.execute(stmt_pat)).scalar_one_or_none()
+                    lab_obj = (await db.execute(select(Laboratory).where(Laboratory.id == lab_id))).scalar_one_or_none()
+                    current_lab_name = lab_obj.name if lab_obj else "Diagnostic Centre"
                     if pat_obj and pat_obj.phone:
                         clean_phone = "".join(filter(str.isdigit, pat_obj.phone))
                         if len(clean_phone) == 10:
                             clean_phone = f"91{clean_phone}"
-                        report_url = f"http://localhost:3000/verify/{rep.public_verification_hash}"
+                        report_url = f"https://jlab-gamma.vercel.app/verify/{rep.public_verification_hash}"
                         template = comm_settings["templates"].get("report_ready", "")
                         msg = template.format(
                             patient_name=pat_obj.full_name,
                             order_number=ord_obj.order_number,
                             lab_number=ord_obj.lab_number or "12378",
                             report_url=report_url,
-                            lab_name=comm_settings.get("lab_display_name", "Sai Balaji Diagnostic Centre")
+                            lab_name=current_lab_name
                         )
                         append_log({
                             "id": f"log-{int(datetime.now().timestamp() * 1000)}",

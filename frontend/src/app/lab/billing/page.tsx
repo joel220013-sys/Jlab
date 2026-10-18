@@ -128,10 +128,10 @@ export default function BillingPage() {
         final_amount: inv.total,
         doctor_name: "Dr. SELF",
         laboratory: {
-          name: "SRI SAI BALAJI DIAGNOSTICS",
-          legal_name: "Sai Balaji Speciality Centre",
-          address: "#42, 10th Main, Jayanagar 4th Block, Bangalore - 560011",
-          phone: "+91 9880016018, 080-23456789",
+          name: "DIAGNOSTIC LABORATORY",
+          legal_name: "Clinical Laboratory Services",
+          address: "Clinical Diagnostic Services",
+          phone: "",
         },
         patient: {
           full_name: inv.patient_name,
@@ -644,17 +644,19 @@ export default function BillingPage() {
                 {/* 1. Lab Header Information */}
                 <div className="text-center space-y-0.5">
                   <h1 className="text-base sm:text-lg font-black tracking-wide uppercase text-slate-950 font-serif">
-                    {viewingOrder.laboratory?.name || "SRI SAI BALAJI DIAGNOSTICS"}
+                    {viewingOrder.laboratory?.name || "DIAGNOSTIC LABORATORY"}
                   </h1>
                   <h2 className="text-[11px] font-bold text-slate-700 tracking-tight">
-                    {viewingOrder.laboratory?.legal_name || "Sai Balaji Speciality Centre"}
+                    {viewingOrder.laboratory?.legal_name || viewingOrder.laboratory?.name || "Clinical Laboratory Services"}
                   </h2>
                   <p className="text-[10px] text-slate-600 font-medium">
-                    {viewingOrder.laboratory?.address || "#42, 10th Main, Jayanagar 4th Block, Bangalore - 560011"}
+                    {viewingOrder.laboratory?.address || "Clinical Diagnostic Services"}
                   </p>
-                  <p className="text-[10px] text-slate-600 font-mono">
-                    Ph: {viewingOrder.laboratory?.phone || "+91 9880016018, 080-23456789"}
-                  </p>
+                  {viewingOrder.laboratory?.phone && (
+                    <p className="text-[10px] text-slate-600 font-mono">
+                      Ph: {viewingOrder.laboratory.phone}
+                    </p>
+                  )}
                 </div>
 
                 {/* 2. Receipt Title Banner */}
@@ -792,7 +794,7 @@ export default function BillingPage() {
                   </div>
                   <div className="text-right">
                     <div className="text-[10px] font-bold text-slate-900">
-                      For {viewingOrder.laboratory?.name || "SRI SAI BALAJI DIAGNOSTICS"}
+                      For {viewingOrder.laboratory?.name || "DIAGNOSTIC LABORATORY"}
                     </div>
                     <div className="h-6"></div>
                     <div className="text-[9px] text-slate-500 font-medium border-t border-slate-400 pt-0.5 inline-block">

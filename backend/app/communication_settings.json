@@ -10,7 +10,7 @@
   "twilio_account_sid": "",
   "twilio_auth_token": "",
   "twilio_phone_number": "",
-  "lab_display_name": "Sai Balaji Diagnostic Centre",
+  "lab_display_name": "Diagnostic Centre",
   "auto_send_on_approval": true,
   "auto_send_on_booking": true,
   "templates": {

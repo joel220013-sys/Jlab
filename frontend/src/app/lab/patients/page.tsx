@@ -58,6 +58,28 @@ export default function PatientsDirectoryPage() {
   const [patientOrderHistory, setPatientOrderHistory] = useState<any[]>([]);
   const [barcodePatient, setBarcodePatient] = useState<PatientItem | null>(null);
 
+  // Current Logged-in User Session State
+  const [currentUser, setCurrentUser] = useState<{
+    userId?: string;
+    fullName?: string;
+    role?: string;
+    labId?: string;
+    labName?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("jlab_user") || localStorage.getItem("pulselab_user");
+        if (stored) {
+          setCurrentUser(JSON.parse(stored));
+        }
+      } catch (err) {
+        console.error("Failed to parse user session", err);
+      }
+    }
+  }, []);
+
   // New patient registration form state
   const [prefix, setPrefix] = useState("Mr.");
   const [regFullName, setRegFullName] = useState("");
@@ -280,7 +302,7 @@ export default function PatientsDirectoryPage() {
             </style>
           </head>
           <body onload="window.print(); setTimeout(() => window.close(), 600);">
-            <div class="lab-header">SRI SAI BALAJI DIAGNOSTICS</div>
+            <div class="lab-header">${(currentUser?.labName || "DIAGNOSTIC LABORATORY").toUpperCase()}</div>
             <div class="barcode-container">
               ${svgHtml}
             </div>
@@ -521,7 +543,7 @@ export default function PatientsDirectoryPage() {
 
                     {/* Venue */}
                     <td className="py-2.5 px-4 text-slate-600 font-semibold text-[11px]">
-                      Sri Sai Balaji Diagnostics
+                      {currentUser?.labName || "Diagnostic Laboratory"}
                     </td>
 
                     {/* Actions */}
@@ -760,7 +782,7 @@ export default function PatientsDirectoryPage() {
             <div className="p-5 space-y-4">
               <div className="p-4 bg-white border-2 border-dashed border-rose-300 rounded-xl space-y-2 text-center text-black">
                 <div className="font-black text-[11px] uppercase tracking-wider text-slate-900">
-                  SRI SAI BALAJI DIAGNOSTICS
+                  {(currentUser?.labName || "DIAGNOSTIC LABORATORY").toUpperCase()}
                 </div>
                 
                 {/* Visual Barcode: Standard Real Code 128 */}

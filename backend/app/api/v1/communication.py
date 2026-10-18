@@ -6,6 +6,10 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, BackgroundTasks, Depends
 from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.database import get_db
+from app.models.tenant import Laboratory
 from app.api.deps import get_current_tenant_context
 from app.core.sanitizer import sanitize_string, sanitize_payload
 
@@ -26,7 +30,7 @@ DEFAULT_SETTINGS = {
     "twilio_account_sid": "",
     "twilio_auth_token": "",
     "twilio_phone_number": "",
-    "lab_display_name": "Sai Balaji Diagnostic Centre",
+    "lab_display_name": "Diagnostic Centre",
     "auto_send_on_approval": True,
     "auto_send_on_booking": True,
     "templates": {
@@ -99,6 +103,7 @@ class SendReportAlertRequest(BaseModel):
     channel: str = "whatsapp"  # "whatsapp" or "sms"
     custom_message: Optional[str] = None
     origin_url: Optional[str] = "http://localhost:3000"
+    lab_name: Optional[str] = None
 
 class SendBookingAlertRequest(BaseModel):
     phone: str
@@ -107,6 +112,7 @@ class SendBookingAlertRequest(BaseModel):
     tests: str
     channel: str = "whatsapp"
     custom_message: Optional[str] = None
+    lab_name: Optional[str] = None
 
 class TestAlertRequest(BaseModel):
     phone: str
@@ -115,9 +121,15 @@ class TestAlertRequest(BaseModel):
 
 @router.get("/settings")
 async def get_communication_settings(
-    user_context: tuple = Depends(get_current_tenant_context)
+    user_context: tuple = Depends(get_current_tenant_context),
+    db: AsyncSession = Depends(get_db)
 ):
-    return load_settings()
+    user, lab_id = user_context
+    lab_obj = (await db.execute(select(Laboratory).where(Laboratory.id == lab_id))).scalar_one_or_none()
+    current_lab_name = lab_obj.name if lab_obj else "Diagnostic Centre"
+    settings = load_settings()
+    settings["lab_display_name"] = current_lab_name
+    return settings
 
 @router.get("/templates")
 async def get_communication_templates(
@@ -150,8 +162,12 @@ async def get_communication_logs(
 @router.post("/send-report-alert")
 async def send_report_alert(
     payload: SendReportAlertRequest,
-    user_context: tuple = Depends(get_current_tenant_context)
+    user_context: tuple = Depends(get_current_tenant_context),
+    db: AsyncSession = Depends(get_db)
 ):
+    user, lab_id = user_context
+    lab_obj = (await db.execute(select(Laboratory).where(Laboratory.id == lab_id))).scalar_one_or_none()
+    current_lab_name = payload.lab_name or (lab_obj.name if lab_obj else "Diagnostic Centre")
     settings = load_settings()
     clean_phone = "".join(filter(str.isdigit, payload.phone))
     if len(clean_phone) == 10:
@@ -173,7 +189,7 @@ async def send_report_alert(
             order_number=order_number,
             lab_number=lab_number,
             report_url=report_url,
-            lab_name=settings.get("lab_display_name", "Sai Balaji Diagnostic Centre")
+            lab_name=current_lab_name
         )
 
     # Format direct WhatsApp Web / App link
@@ -209,8 +225,12 @@ async def send_report_alert(
 @router.post("/send-booking-alert")
 async def send_booking_alert(
     payload: SendBookingAlertRequest,
-    user_context: tuple = Depends(get_current_tenant_context)
+    user_context: tuple = Depends(get_current_tenant_context),
+    db: AsyncSession = Depends(get_db)
 ):
+    user, lab_id = user_context
+    lab_obj = (await db.execute(select(Laboratory).where(Laboratory.id == lab_id))).scalar_one_or_none()
+    current_lab_name = payload.lab_name or (lab_obj.name if lab_obj else "Diagnostic Centre")
     settings = load_settings()
     clean_phone = "".join(filter(str.isdigit, payload.phone))
     if len(clean_phone) == 10:
@@ -228,7 +248,7 @@ async def send_booking_alert(
             patient_name=patient_name,
             lab_number=lab_number,
             tests=tests,
-            lab_name=settings.get("lab_display_name", "Sai Balaji Diagnostic Centre")
+            lab_name=current_lab_name
         )
 
     encoded_text = message_text.replace("\n", "%0A")

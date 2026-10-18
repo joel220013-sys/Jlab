@@ -10,6 +10,7 @@ from app.database import get_db
 from app.models.order import Order, Invoice, InvoiceStatus
 from app.models.patient import Patient, Doctor
 from app.models.result import Report
+from app.models.laboratory import Laboratory
 from app.api.deps import get_current_tenant_context
 
 router = APIRouter(prefix="/billing", tags=["Billing & Payments"])
@@ -157,9 +158,17 @@ async def get_day_closing_summary(
             "due": float(inv.balance)
         })
 
+    # Fetch active laboratory name for header
+    lab_name = "Diagnostic Laboratory"
+    if lab_id:
+        lab_res = await db.execute(select(Laboratory).where(Laboratory.id == lab_id))
+        current_lab = lab_res.scalar_one_or_none()
+        if current_lab and current_lab.name:
+            lab_name = current_lab.name
+
     return {
         "summary_info": {
-            "lab_name": "SAIBALAJI DIAGNOSTIC CENTRE",
+            "lab_name": lab_name,
             "date": target_date,
             "report_period": f"{target_date} AT 12:00 AM to {target_date} AT 11:59 PM",
             "ref_center": ref_center or "Select Ref. Center"

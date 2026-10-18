@@ -84,11 +84,11 @@ function NewOrderContent() {
   const [registrationType, setRegistrationType] = useState("Walk-in");
   const [doctorName, setDoctorName] = useState("Self / Direct");
   const [doctorsList, setDoctorsList] = useState<{ id: string; full_name: string }[]>([]);
-  const [refCenter, setRefCenter] = useState("SAIBALAJI DIAGNOSTIC CENTER (Main Hub)");
+  const [refCenter, setRefCenter] = useState("Main Laboratory Hub");
   const [centersList, setCentersList] = useState<{ id: string; name: string }[]>([
-    { id: "main", name: "SAIBALAJI DIAGNOSTIC CENTER (Main Hub)" },
-    { id: "sec4", name: "Sai Balaji Collection Branch - Sector 4" },
-    { id: "tieup", name: "Sai Balaji City Hospital Tie-up" },
+    { id: "main", name: "Main Laboratory Hub" },
+    { id: "sec4", name: "Collection Branch - Sector 4" },
+    { id: "tieup", name: "City Hospital Tie-up" },
   ]);
 
   // Modal states for New Doctor & New Center

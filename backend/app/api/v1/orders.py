@@ -328,7 +328,7 @@ async def get_order_detail(
             doctor_name = doc.full_name
 
     # Extract Ref Center or Ref Doctor from clinical_history if present
-    ref_center = "SAIBALAJI DIAGNOSTIC CENTER"
+    ref_center = "Main Laboratory Hub"
     if order.clinical_history:
         for part in order.clinical_history.split(" | "):
             if part.startswith("Ref Center: "):
@@ -424,11 +424,11 @@ async def get_order_detail(
         "discount_amount": float(order.discount_amount),
         "final_amount": float(order.final_amount),
         "laboratory": {
-            "name": lab.name if lab else "SRI SAI BALAJI DIAGNOSTICS",
-            "legal_name": lab.legal_name if (lab and lab.legal_name) else "Sai Balaji Speciality Centre",
-            "address": lab.address if (lab and lab.address) else "#42, 10th Main, Jayanagar 4th Block, Bangalore - 560011",
-            "phone": lab.phone if (lab and lab.phone) else "+91 9880016018, 080-23456789",
-            "email": lab.email if (lab and lab.email) else "contact@saibalajidiagnostics.com"
+            "name": lab.name if lab else "Diagnostic Laboratory",
+            "legal_name": lab.legal_name if (lab and lab.legal_name) else (lab.name if lab else "Diagnostic Laboratory Services"),
+            "address": lab.address if (lab and lab.address) else "Clinical Diagnostic Centre",
+            "phone": lab.phone if (lab and lab.phone) else "",
+            "email": lab.email if (lab and lab.email) else ""
         },
         "patient": {
             "id": patient.id,

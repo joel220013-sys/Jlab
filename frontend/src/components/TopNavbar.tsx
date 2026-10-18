@@ -34,10 +34,10 @@ export function TopNavbar() {
     labName: string;
     username?: string;
   }>({
-    fullName: "Rakesh Kumar",
+    fullName: "Staff Member",
     role: "LAB_ADMIN",
-    labName: "Sri Sai Balaji Diagnostics",
-    username: "sbdcrakesh"
+    labName: "Diagnostic Laboratory",
+    username: ""
   });
 
   const [pendingTechCount, setPendingTechCount] = useState<number>(0);

@@ -50,6 +50,7 @@ interface ReportItem {
   public_verification_hash: string;
   invoice_balance: number;
   invoice_total: number;
+  laboratory_name?: string;
   created_at: string;
 }
 
@@ -409,12 +410,13 @@ function ReportsContent() {
   };
 
   // WhatsApp dispatch trigger with backend audit logging
-  const handleWhatsAppShare = async (phone: string, patientName: string, verifyHash: string) => {
+  const handleWhatsAppShare = async (phone: string, patientName: string, verifyHash: string, customLabName?: string) => {
     const cleanPhone = phone.replace(/[^0-9]/g, "");
     const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
     const verifyLink = `${window.location.origin}/verify/${verifyHash}`;
+    const activeLabName = customLabName || selectedDispatch?.laboratory?.name || currentUser?.labName || "Diagnostic Centre";
     const message = encodeURIComponent(
-      `Hello ${patientName},\nYour diagnostic test report from Sai Balaji Diagnostic Centre is ready for viewing and download.\n\nView Report: ${verifyLink}\n\nThank you for choosing Sai Balaji Diagnostic Centre.`
+      `Hello ${patientName},\nYour diagnostic test report from ${activeLabName} is ready for viewing and download.\n\nView Report: ${verifyLink}\n\nThank you for choosing ${activeLabName}.`
     );
 
     // Call backend communication API to record audit log
@@ -428,7 +430,8 @@ function ReportsContent() {
           lab_number: selectedDispatch?.order?.lab_number || "LAB",
           verify_hash: verifyHash,
           channel: "whatsapp",
-          origin_url: window.location.origin
+          origin_url: window.location.origin,
+          lab_name: activeLabName
         })
       });
     } catch {
@@ -883,7 +886,7 @@ function ReportsContent() {
                               <span className="text-slate-300">/</span>
                               <button
                                 type="button"
-                                onClick={() => handleWhatsAppShare(r.patient_phone, r.patient_name, r.public_verification_hash)}
+                                onClick={() => handleWhatsAppShare(r.patient_phone, r.patient_name, r.public_verification_hash, r.laboratory_name || currentUser?.labName)}
                                 className="hover:text-emerald-600 transition-colors"
                                 title="Direct WhatsApp Dispatch"
                               >
@@ -1295,7 +1298,7 @@ function ReportsContent() {
 
                 <button
                   type="button"
-                  onClick={() => handleWhatsAppShare(selectedDispatch.patient.phone || "9449835659", selectedDispatch.patient.name, selectedDispatch.public_verification_hash)}
+                  onClick={() => handleWhatsAppShare(selectedDispatch.patient.phone || "", selectedDispatch.patient.name, selectedDispatch.public_verification_hash, selectedDispatch.laboratory?.name || currentUser?.labName)}
                   className="px-3 py-1 bg-white border border-emerald-500 hover:bg-emerald-50 text-emerald-700 font-bold rounded flex items-center gap-1.5 shadow-2xs transition-colors"
                 >
                   <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />

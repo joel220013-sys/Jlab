@@ -84,7 +84,7 @@ interface SummaryData {
 
 const EMPTY_SUMMARY: SummaryData = {
   summary_info: {
-    lab_name: "Sri Sai Balaji Diagnostics",
+    lab_name: "Diagnostic Laboratory",
     date: "",
     report_period: "",
     ref_center: "All Ref. Centers"
@@ -170,6 +170,23 @@ function DayClosingSummaryContent() {
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("jlab_user") || localStorage.getItem("pulselab_user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          if (u?.labName) {
+            setSummaryData((prev) => ({
+              ...prev,
+              summary_info: {
+                ...prev.summary_info,
+                lab_name: u.labName
+              }
+            }));
+          }
+        }
+      } catch {}
+    }
     fetchSummary();
   }, []);
 
@@ -236,7 +253,7 @@ function DayClosingSummaryContent() {
               className="bg-white border border-slate-300 rounded px-2.5 py-1 text-slate-700 text-xs focus:outline-none focus:border-cyan-600 shadow-2xs cursor-pointer min-w-[160px]"
             >
               <option value="Select Ref. Center">Select Ref. Center</option>
-              <option value="Main Hub">Main Hub - Sai Balaji</option>
+              <option value="Main Hub">Main Laboratory Hub</option>
               <option value="NANDI DIAGNOSTIC CENTER">NANDI DIAGNOSTI CENTER</option>
               <option value="CITY HEALTH CLINIC">CITY HEALTH CLINIC</option>
             </select>

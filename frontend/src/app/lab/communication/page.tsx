@@ -66,7 +66,7 @@ export default function CommunicationPage() {
   const [testPhone, setTestPhone] = useState("9449835659");
   const [testChannel, setTestChannel] = useState<"whatsapp" | "sms">("whatsapp");
   const [testMessage, setTestMessage] = useState(
-    "Hello! This is a test alert from Sai Balaji Diagnostic Centre. Your notification system is working perfectly."
+    "Hello! This is a test alert from Diagnostic Centre. Your notification system is working perfectly."
   );
   const [sendingTest, setSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
@@ -92,6 +92,19 @@ export default function CommunicationPage() {
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("jlab_user") || localStorage.getItem("pulselab_user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          if (u?.labName) {
+            setTestMessage(
+              `Hello! This is a test alert from ${u.labName}. Your notification system is working perfectly.`
+            );
+          }
+        }
+      } catch {}
+    }
     fetchData();
   }, []);
 
@@ -228,7 +241,7 @@ export default function CommunicationPage() {
             <ShieldCheck className="w-3.5 h-3.5 text-rose-700" />
           </div>
           <div className="text-xl font-black text-rose-950 mt-1 truncate">
-            {settings?.lab_display_name || "Sai Balaji"}
+            {settings?.lab_display_name || "Diagnostic Centre"}
           </div>
           <div className="text-[11px] text-slate-500 mt-1">Verified Diagnostic Center</div>
         </div>
@@ -449,11 +462,11 @@ export default function CommunicationPage() {
                 <div className="bg-[#e5ddd5] rounded-[24px] h-[360px] p-3 flex flex-col justify-between overflow-hidden relative">
                   {/* Chat header */}
                   <div className="bg-[#075e54] text-white p-2 rounded-t-xl -mx-3 -mt-3 flex items-center gap-2 shadow-sm">
-                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
-                      SB
+                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold uppercase">
+                      {(settings?.lab_display_name || "DC").slice(0, 2)}
                     </div>
                     <div>
-                      <div className="text-xs font-bold leading-none">{settings?.lab_display_name || "Sai Balaji"}</div>
+                      <div className="text-xs font-bold leading-none">{settings?.lab_display_name || "Diagnostic Centre"}</div>
                       <div className="text-[9px] text-emerald-200 mt-0.5">Official Lab Verification</div>
                     </div>
                   </div>

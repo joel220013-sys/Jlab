@@ -22,6 +22,7 @@ async def list_reports(
     db: AsyncSession = Depends(get_db)
 ):
     _, lab_id = user_context
+    lab = (await db.execute(select(Laboratory).where(Laboratory.id == lab_id))).scalar_one_or_none()
     stmt = (
         select(Report, Order, Patient, Invoice, Doctor)
         .join(Order, Report.order_id == Order.id)
@@ -100,6 +101,7 @@ async def list_reports(
             "public_verification_hash": rep.public_verification_hash,
             "invoice_balance": float(inv.balance) if inv else 0.0,
             "invoice_total": float(inv.total) if inv else 0.0,
+            "laboratory_name": lab.name if lab else "Diagnostic Centre",
             "created_at": rep.created_at.strftime("%d %b %Y, %I:%M %p") if rep.created_at else None
         })
     return out

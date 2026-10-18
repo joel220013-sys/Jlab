@@ -1497,17 +1497,19 @@ function TechnicianWorkbenchContent() {
                 {/* 1. Lab Header Information */}
                 <div className="text-center space-y-0.5">
                   <h1 className="text-base sm:text-lg font-black tracking-wide uppercase text-slate-950 font-serif">
-                    {currentOrder.laboratory?.name || "SRI SAI BALAJI DIAGNOSTICS"}
+                    {currentOrder.laboratory?.name || "DIAGNOSTIC LABORATORY"}
                   </h1>
                   <h2 className="text-[11px] font-bold text-slate-700 tracking-tight">
-                    {currentOrder.laboratory?.legal_name || "Sai Balaji Speciality Centre"}
+                    {currentOrder.laboratory?.legal_name || currentOrder.laboratory?.name || "Clinical Laboratory Services"}
                   </h2>
                   <p className="text-[10px] text-slate-600 font-medium">
-                    {currentOrder.laboratory?.address || "#42, 10th Main, Jayanagar 4th Block, Bangalore - 560011"}
+                    {currentOrder.laboratory?.address || "Clinical Diagnostic Services"}
                   </p>
-                  <p className="text-[10px] text-slate-600 font-mono">
-                    Ph: {currentOrder.laboratory?.phone || "+91 9880016018, 080-23456789"}
-                  </p>
+                  {currentOrder.laboratory?.phone && (
+                    <p className="text-[10px] text-slate-600 font-mono">
+                      Ph: {currentOrder.laboratory.phone}
+                    </p>
+                  )}
                 </div>
 
                 {/* 2. Receipt Title Banner */}
@@ -1643,7 +1645,7 @@ function TechnicianWorkbenchContent() {
                   </div>
                   <div className="text-right">
                     <div className="text-[10px] font-bold text-slate-900">
-                      For {currentOrder.laboratory?.name || "SRI SAI BALAJI DIAGNOSTICS"}
+                      For {currentOrder.laboratory?.name || "DIAGNOSTIC LABORATORY"}
                     </div>
                     <div className="h-6"></div>
                     <div className="text-[9px] text-slate-500 font-medium border-t border-slate-400 pt-0.5 inline-block">
@@ -1763,13 +1765,13 @@ function TechnicianWorkbenchContent() {
                   <div className="border-b-2 border-slate-900 pb-3 flex items-center justify-between">
                     <div>
                       <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">
-                        {reportData?.laboratory?.name || "SRI SAI BALAJI DIAGNOSTICS"}
+                        {reportData?.laboratory?.name || "DIAGNOSTIC LABORATORY"}
                       </h1>
                       <p className="text-[10px] text-slate-600 font-medium">
-                        {reportData?.laboratory?.address || "14/2, 1st Cross, Temple Road, Malleshwaram, Bengaluru, KA 560003"}
+                        {reportData?.laboratory?.address || "Clinical Laboratory Services"}
                       </p>
                       <p className="text-[10px] text-slate-600 font-mono">
-                        Phone: {reportData?.laboratory?.phone || "+91 98450 12345"} · {reportData?.laboratory?.nabl_accr || "NABL CERTIFIED · MC-3482"}
+                        {reportData?.laboratory?.phone ? `Phone: ${reportData.laboratory.phone} · ` : ""}{reportData?.laboratory?.nabl_accr || "NABL ACCREDITED"}
                       </p>
                     </div>
                     {currentOrder.lab_number && (
