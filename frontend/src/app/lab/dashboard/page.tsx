@@ -11,9 +11,7 @@ import {
   ChevronRight,
   TrendingUp,
   Settings,
-  Calendar,
-  ArrowRight,
-  Layers
+  Calendar
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
@@ -121,15 +119,6 @@ export default function LabDashboard() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <Link
-            href="/lab/sample-tracking"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-rose-300 hover:bg-rose-50 text-rose-950 font-bold text-xs shadow-2xs transition-all cursor-pointer"
-            title="Open complete Live Sample Tracking Queue with all orders"
-          >
-            <Clock className="w-4 h-4 text-rose-700" />
-            <span>Tracking Queue ({orders.length})</span>
-          </Link>
-
-          <Link
             href="/lab/settings"
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-rose-300 hover:bg-rose-50 text-rose-950 font-bold text-xs shadow-2xs transition-all cursor-pointer"
             title="Configure Laboratory Details & Account"
@@ -227,22 +216,11 @@ export default function LabDashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-slate-500 font-medium">Active Count:</span>
-              <span className="bg-rose-100 text-rose-900 border border-rose-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
-                {todayOrders.length} Orders
-              </span>
-            </div>
-
-            <Link
-              href="/lab/sample-tracking"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-rose-300 hover:bg-rose-50 text-rose-950 font-bold text-xs shadow-2xs transition-all cursor-pointer group"
-            >
-              <Layers className="w-3.5 h-3.5 text-rose-700" />
-              <span>Live Sample Tracking Queue ({orders.length})</span>
-              <ChevronRight className="w-3.5 h-3.5 text-rose-600 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-slate-500 font-medium">Active Count:</span>
+            <span className="bg-rose-100 text-rose-900 border border-rose-300 px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+              {todayOrders.length} Orders
+            </span>
           </div>
         </div>
 
@@ -259,7 +237,7 @@ export default function LabDashboard() {
               No orders registered today ({todayDateStr || "Today"})
             </p>
             <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-              This table strictly displays orders placed today. Your {orders.length} total active accession orders are managed in the Live Sample Tracking Queue.
+              This table strictly displays orders placed today. Click below to register a new order.
             </p>
             <div className="flex items-center justify-center gap-3 mt-5 flex-wrap">
               <Link
@@ -268,14 +246,6 @@ export default function LabDashboard() {
               >
                 <Plus className="w-3.5 h-3.5 text-rose-200" />
                 <span>+ New Order (Bill-First)</span>
-              </Link>
-              <Link
-                href="/lab/sample-tracking"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-rose-300 hover:bg-rose-50 text-rose-950 text-xs font-bold transition-all shadow-2xs"
-              >
-                <Clock className="w-3.5 h-3.5 text-rose-700" />
-                <span>Open Live Sample Tracking Queue ({orders.length} orders)</span>
-                <ArrowRight className="w-3.5 h-3.5 text-rose-600" />
               </Link>
             </div>
           </div>

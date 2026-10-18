@@ -42,6 +42,7 @@ export function TopNavbar() {
 
   const [pendingTechCount, setPendingTechCount] = useState<number>(0);
   const [pendingApprovalCount, setPendingApprovalCount] = useState<number>(0);
+  const [activeQueueCount, setActiveQueueCount] = useState<number>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -78,6 +79,15 @@ export function TopNavbar() {
         setPendingTechCount(0);
         setPendingApprovalCount(0);
       });
+
+    // Query active orders for tracking queue badge
+    apiFetch("/orders")
+      .then((orders: any) => {
+        if (Array.isArray(orders)) {
+          setActiveQueueCount(orders.length);
+        }
+      })
+      .catch(() => {});
   }, [pathname]);
 
   const handleLogout = () => {
@@ -96,9 +106,11 @@ export function TopNavbar() {
       exact: true
     },
     { 
-      label: "Tracking Queue", 
+      label: "Live Sample Tracking Queue", 
+      shortLabel: "Tracking Queue",
       href: "/lab/sample-tracking", 
-      icon: Clock 
+      icon: Clock,
+      badge: activeQueueCount > 0 ? activeQueueCount : undefined
     },
     { 
       label: "Patients", 
@@ -112,6 +124,7 @@ export function TopNavbar() {
     },
     { 
       label: "Technician Workbench", 
+      shortLabel: "Workbench",
       href: "/lab/technician", 
       icon: FlaskConical, 
       badge: pendingTechCount > 0 ? pendingTechCount : undefined 
@@ -160,7 +173,7 @@ export function TopNavbar() {
       {/* Main Top Horizontal Bar */}
       <div className="max-w-[1920px] mx-auto px-3 sm:px-4 flex items-center justify-between h-12 gap-2">
         {/* Brand Logo & Name */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
           <Link href="/lab/dashboard" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-xs group-hover:scale-105 transition-transform shrink-0">
               <Image
@@ -181,8 +194,8 @@ export function TopNavbar() {
           </Link>
         </div>
 
-        {/* Desktop Horizontal Navigation Tabs (Matching Reference Image) */}
-        <nav className="hidden xl:flex items-center gap-0.5 overflow-x-auto no-scrollbar py-1">
+        {/* Desktop & Laptop Horizontal Navigation Tabs */}
+        <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 flex-1 min-w-0 overflow-x-auto no-scrollbar py-1">
           {navItems.map((item) => {
             const isActive = item.exact 
               ? pathname === item.href 
@@ -192,50 +205,30 @@ export function TopNavbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-2.5 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-                  isActive
-                    ? "bg-[#16A34A] text-white shadow-xs"
-                    : "text-rose-100/90 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5 shrink-0 opacity-90" />
-                <span>{item.label}</span>
-                {item.badge !== undefined && (
-                  <span className={`text-[10px] font-mono font-black px-1.5 py-0.2 rounded-full ${
-                    isActive 
-                      ? "bg-white text-emerald-900" 
-                      : "bg-rose-500 text-white"
-                  }`}>
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Medium Screen Responsive Scroll Tabs (For laptops 1024px - 1280px) */}
-        <nav className="hidden lg:flex xl:hidden items-center gap-0.5 overflow-x-auto no-scrollbar py-1 max-w-[55%]">
-          {navItems.map((item) => {
-            const isActive = item.exact 
-              ? pathname === item.href 
-              : pathname === item.href || (item.href !== "/lab/dashboard" && pathname.startsWith(item.href));
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`px-2 py-1 rounded text-[11px] font-bold transition-all flex items-center gap-1 whitespace-nowrap ${
+                className={`px-2 xl:px-2.5 py-1.5 rounded text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                   isActive
                     ? "bg-[#16A34A] text-white shadow-xs"
                     : "text-rose-100/90 hover:bg-white/10 hover:text-white"
                 }`}
                 title={item.label}
               >
-                <Icon className="w-3.5 h-3.5 shrink-0" />
-                <span>{item.label}</span>
+                <Icon className="w-3.5 h-3.5 shrink-0 opacity-90" />
+                <span>
+                  {item.shortLabel ? (
+                    <>
+                      <span className="hidden 2xl:inline">{item.label}</span>
+                      <span className="inline 2xl:hidden">{item.shortLabel}</span>
+                    </>
+                  ) : (
+                    item.label
+                  )}
+                </span>
                 {item.badge !== undefined && (
-                  <span className="text-[9px] font-mono font-black px-1 rounded-full bg-rose-500 text-white">
+                  <span className={`text-[10px] font-mono font-black px-1.5 py-0.2 rounded-full ${
+                    isActive 
+                      ? "bg-white text-emerald-900" 
+                      : "bg-rose-500 text-white"
+                  }`}>
                     {item.badge}
                   </span>
                 )}
@@ -253,20 +246,10 @@ export function TopNavbar() {
             title="Edit Laboratory Details & Settings"
           >
             <Building2 className="w-3 h-3 text-rose-300 shrink-0" />
-            <span className="font-semibold text-rose-100 truncate max-w-[160px] text-[11px]" title={userInfo.labName}>
+            <span className="font-semibold text-rose-100 truncate max-w-[140px] text-[11px]" title={userInfo.labName}>
               {userInfo.labName}
             </span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" title="Licensed Active"></span>
-          </Link>
-
-          {/* Quick Settings Button */}
-          <Link
-            href="/lab/settings"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/25 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
-            title="Lab & Profile Settings"
-          >
-            <Settings className="w-3.5 h-3.5 text-rose-200" />
-            <span className="text-[11px] font-bold">Settings</span>
           </Link>
 
           {/* Notifications Bell */}
