@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Building2,
   User,
@@ -21,7 +20,10 @@ import {
   Eye,
   KeyRound,
   ExternalLink,
-  Plus
+  Plus,
+  UploadCloud,
+  Trash2,
+  Link as LinkIcon
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
@@ -109,6 +111,124 @@ export default function SettingsPage() {
   const [newBranchCode, setNewBranchCode] = useState("");
   const [newBranchPhone, setNewBranchPhone] = useState("");
   const [newBranchAddress, setNewBranchAddress] = useState("");
+
+  // Local Device Photo Upload State
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const sigInputRef = useRef<HTMLInputElement>(null);
+  const [isDraggingLogo, setIsDraggingLogo] = useState(false);
+  const [isDraggingSig, setIsDraggingSig] = useState(false);
+  const [showLogoUrlInput, setShowLogoUrlInput] = useState(false);
+  const [showSigUrlInput, setShowSigUrlInput] = useState(false);
+
+  // Compress & read image file directly from user device without heavy payload
+  const processImageFile = (file: File, maxDim = 800): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith("image/")) {
+        reject(new Error("Please upload a valid image file (PNG, JPG, WEBP, or SVG)"));
+        return;
+      }
+
+      // Handle SVG as data URL directly
+      if (file.type === "image/svg+xml") {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("Failed to read SVG file"));
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        const img = document.createElement("img");
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(result);
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Preserve transparent PNGs or compress with clean JPEG
+          const isPng = file.type === "image/png";
+          const mimeType = isPng ? "image/png" : "image/jpeg";
+          const quality = isPng ? undefined : 0.85;
+          const compressedDataUrl = canvas.toDataURL(mimeType, quality);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = () => resolve(result);
+        img.src = result;
+      };
+      reader.onerror = () => reject(new Error("Failed to read image from device"));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await processImageFile(file, 800);
+      setLabLogoUrl(dataUrl);
+      showNotification("Logo photo loaded from device! Click 'Save Laboratory Information' to persist.");
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : "Error reading image file", true);
+    }
+  };
+
+  const handleLogoDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingLogo(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await processImageFile(file, 800);
+      setLabLogoUrl(dataUrl);
+      showNotification("Logo photo loaded from device! Click 'Save Laboratory Information' to persist.");
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : "Error reading image file", true);
+    }
+  };
+
+  const handleSigFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await processImageFile(file, 500);
+      setSignatureUrl(dataUrl);
+      showNotification("Digital signature loaded from device! Click 'Save Profile & Credentials' to persist.");
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : "Error reading signature file", true);
+    }
+  };
+
+  const handleSigDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingSig(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await processImageFile(file, 500);
+      setSignatureUrl(dataUrl);
+      showNotification("Digital signature loaded from device! Click 'Save Profile & Credentials' to persist.");
+    } catch (err: unknown) {
+      showNotification(err instanceof Error ? err.message : "Error reading signature file", true);
+    }
+  };
 
   const showNotification = (msg: string, isError = false) => {
     if (isError) {
@@ -600,21 +720,121 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  {/* Logo URL */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      Laboratory Logo Image URL
-                    </label>
+                  {/* Logo Upload from Local Device */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-slate-800">
+                        Laboratory Logo <span className="text-slate-500 font-normal">(Upload from Device)</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowLogoUrlInput(!showLogoUrlInput)}
+                        className="text-[11px] font-semibold text-rose-700 hover:text-rose-900 flex items-center gap-1 cursor-pointer"
+                      >
+                        <LinkIcon className="w-3 h-3" />
+                        <span>{showLogoUrlInput ? "Hide URL input" : "Or use image URL instead"}</span>
+                      </button>
+                    </div>
+
                     <input
-                      type="text"
-                      value={labLogoUrl}
-                      onChange={(e) => setLabLogoUrl(e.target.value)}
-                      placeholder="https://.../logo.png or /jlab-logo.png"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
+                      type="file"
+                      ref={logoInputRef}
+                      accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml"
+                      onChange={handleLogoFileChange}
+                      className="hidden"
                     />
-                    <span className="text-[10px] text-slate-400 mt-0.5 block">
-                      Leave empty to use the standard default high-resolution laboratory seal
-                    </span>
+
+                    {labLogoUrl ? (
+                      /* Active Logo with Change and Remove Buttons */
+                      <div className="border border-rose-200 bg-rose-50/40 rounded-xl p-3.5 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="w-14 h-14 rounded-lg bg-white border border-rose-200 flex items-center justify-center p-1 overflow-hidden shrink-0 shadow-2xs">
+                            <img
+                              src={labLogoUrl}
+                              alt="Lab Logo Preview"
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                Logo Selected
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 mt-1 truncate">
+                              Ready for print letterheads & patient report dispatches
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => logoInputRef.current?.click()}
+                            className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                          >
+                            <UploadCloud className="w-3.5 h-3.5 text-rose-700" />
+                            <span>Change Photo</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLabLogoUrl("");
+                              if (logoInputRef.current) logoInputRef.current.value = "";
+                            }}
+                            className="p-1.5 text-rose-600 hover:bg-rose-100/70 rounded-lg transition-colors cursor-pointer"
+                            title="Remove logo and use default laboratory seal"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Drag & Drop Upload Zone */
+                      <div
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setIsDraggingLogo(true);
+                        }}
+                        onDragLeave={() => setIsDraggingLogo(false)}
+                        onDrop={handleLogoDrop}
+                        onClick={() => logoInputRef.current?.click()}
+                        className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+                          isDraggingLogo
+                            ? "border-rose-600 bg-rose-50"
+                            : "border-slate-300 hover:border-rose-400 bg-slate-50/70 hover:bg-rose-50/30"
+                        }`}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-700 mx-auto flex items-center justify-center mb-2 shadow-2xs">
+                          <UploadCloud className="w-5 h-5" />
+                        </div>
+                        <div className="text-xs font-bold text-slate-800">
+                          Click to upload logo from your device
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          or drag & drop your laboratory image file here
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-1">
+                          PNG, JPG, WEBP, or SVG · Auto-compressed for rapid loading
+                        </p>
+                      </div>
+                    )}
+
+                    {showLogoUrlInput && (
+                      <div className="pt-1.5">
+                        <input
+                          type="text"
+                          value={labLogoUrl}
+                          onChange={(e) => setLabLogoUrl(e.target.value)}
+                          placeholder="https://.../logo.png or /jlab-logo.png"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
+                        />
+                        <span className="text-[10px] text-slate-400 mt-0.5 block">
+                          Paste a direct image link if you prefer hosting it externally
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="pt-2 flex items-center justify-end">
@@ -642,13 +862,10 @@ export default function SettingsPage() {
                   <div className="border border-slate-200 rounded-xl p-4 bg-white shadow-2xs text-center space-y-1.5 relative overflow-hidden">
                     <div className="w-10 h-10 rounded-lg bg-rose-50 border border-rose-200 mx-auto flex items-center justify-center p-1 overflow-hidden">
                       {labLogoUrl ? (
-                        <Image
+                        <img
                           src={labLogoUrl}
                           alt="Lab Logo Preview"
-                          width={36}
-                          height={36}
                           className="max-h-full max-w-full object-contain"
-                          unoptimized
                         />
                       ) : (
                         <span className="text-lg">🏥</span>
@@ -795,28 +1012,111 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  {/* Digital Signature URL */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      Digital Signature Image URL
-                    </label>
+                  {/* Digital Signature Upload from Local Device */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-slate-800">
+                        Digital Signature <span className="text-slate-500 font-normal">(Upload from Device)</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowSigUrlInput(!showSigUrlInput)}
+                        className="text-[11px] font-semibold text-rose-700 hover:text-rose-900 flex items-center gap-1 cursor-pointer"
+                      >
+                        <LinkIcon className="w-3 h-3" />
+                        <span>{showSigUrlInput ? "Hide URL input" : "Or use signature URL"}</span>
+                      </button>
+                    </div>
+
                     <input
-                      type="text"
-                      value={signatureUrl}
-                      onChange={(e) => setSignatureUrl(e.target.value)}
-                      placeholder="https://.../signature.png or transparent PNG URL"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
+                      type="file"
+                      ref={sigInputRef}
+                      accept="image/png, image/jpeg, image/jpg, image/webp"
+                      onChange={handleSigFileChange}
+                      className="hidden"
                     />
-                    {signatureUrl && (
-                      <div className="mt-2 p-2 bg-slate-50 border border-slate-200 rounded-lg inline-block">
-                        <span className="text-[10px] text-slate-500 block mb-1">Signature Preview:</span>
-                        <Image
-                          src={signatureUrl}
-                          alt="Signature Preview"
-                          width={140}
-                          height={48}
-                          className="h-12 object-contain"
-                          unoptimized
+
+                    {signatureUrl ? (
+                      <div className="border border-rose-200 bg-rose-50/40 rounded-xl p-3.5 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="h-14 w-28 rounded-lg bg-white border border-rose-200 flex items-center justify-center p-1 overflow-hidden shrink-0 shadow-2xs">
+                            <img
+                              src={signatureUrl}
+                              alt="Signature preview"
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              Signature Attached
+                            </span>
+                            <p className="text-[11px] text-slate-600 mt-1 truncate">
+                              Stamped automatically on verified patient reports
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => sigInputRef.current?.click()}
+                            className="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                          >
+                            <UploadCloud className="w-3.5 h-3.5 text-rose-700" />
+                            <span>Change</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSignatureUrl("");
+                              if (sigInputRef.current) sigInputRef.current.value = "";
+                            }}
+                            className="p-1.5 text-rose-600 hover:bg-rose-100/70 rounded-lg transition-colors cursor-pointer"
+                            title="Remove signature"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setIsDraggingSig(true);
+                        }}
+                        onDragLeave={() => setIsDraggingSig(false)}
+                        onDrop={handleSigDrop}
+                        onClick={() => sigInputRef.current?.click()}
+                        className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                          isDraggingSig
+                            ? "border-rose-600 bg-rose-50"
+                            : "border-slate-300 hover:border-rose-400 bg-slate-50/70 hover:bg-rose-50/30"
+                        }`}
+                      >
+                        <div className="w-9 h-9 rounded-full bg-rose-100 text-rose-700 mx-auto flex items-center justify-center mb-1.5 shadow-2xs">
+                          <UploadCloud className="w-4 h-4" />
+                        </div>
+                        <div className="text-xs font-bold text-slate-800">
+                          Upload digital signature from device
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Sign on plain white paper, snap a photo or scan with phone/PC, and select it here
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          Transparent PNG or clear JPG recommended · Auto-optimized
+                        </p>
+                      </div>
+                    )}
+
+                    {showSigUrlInput && (
+                      <div className="pt-1.5">
+                        <input
+                          type="text"
+                          value={signatureUrl}
+                          onChange={(e) => setSignatureUrl(e.target.value)}
+                          placeholder="https://.../signature.png"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
                         />
                       </div>
                     )}
