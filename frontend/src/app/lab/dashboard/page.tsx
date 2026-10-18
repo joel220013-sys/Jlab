@@ -11,7 +11,8 @@ import {
   Receipt,
   ChevronRight,
   TrendingUp,
-  Inbox
+  Inbox,
+  Settings
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
@@ -91,7 +92,16 @@ export default function LabDashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href="/lab/settings"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-rose-300 hover:bg-rose-50 text-rose-950 font-bold text-xs shadow-2xs transition-all cursor-pointer"
+            title="Configure Laboratory Details & Account"
+          >
+            <Settings className="w-4 h-4 text-rose-700" />
+            <span>Lab Settings</span>
+          </Link>
+
           <Link
             href="/lab/orders/new"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#5E1224] hover:bg-[#721C24] text-white font-semibold text-xs shadow-sm transition-all"
@@ -197,13 +207,22 @@ export default function LabDashboard() {
             <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
               Your clinical queue is clean. Click &quot;+ New Order&quot; to register a patient, select tests, and generate accession barcodes.
             </p>
-            <Link
-              href="/lab/orders/new"
-              className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-[#5E1224] hover:bg-[#721C24] text-white text-xs font-bold transition-all shadow-xs"
-            >
-              <Plus className="w-3.5 h-3.5 text-rose-200" />
-              <span>+ Create First Order (Bill-First)</span>
-            </Link>
+            <div className="flex items-center justify-center gap-2.5 mt-4 flex-wrap">
+              <Link
+                href="/lab/orders/new"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#5E1224] hover:bg-[#721C24] text-white text-xs font-bold transition-all shadow-xs"
+              >
+                <Plus className="w-3.5 h-3.5 text-rose-200" />
+                <span>+ Create First Order (Bill-First)</span>
+              </Link>
+              <Link
+                href="/lab/settings"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white border border-rose-300 hover:bg-rose-50 text-rose-950 text-xs font-bold transition-all shadow-2xs"
+              >
+                <Settings className="w-3.5 h-3.5 text-rose-700" />
+                <span>Configure Lab Information</span>
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="overflow-x-auto">

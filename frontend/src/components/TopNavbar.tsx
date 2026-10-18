@@ -256,10 +256,11 @@ export function TopNavbar() {
           {/* Quick Settings Button */}
           <Link
             href="/lab/settings"
-            className="p-1.5 text-rose-200 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/25 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
             title="Lab & Profile Settings"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-3.5 h-3.5 text-rose-200" />
+            <span className="text-[11px] font-bold">Settings</span>
           </Link>
 
           {/* Notifications Bell */}
@@ -275,7 +276,7 @@ export function TopNavbar() {
           </button>
 
           {/* User Profile Pill */}
-          <div className="flex items-center gap-2 pl-1 border-l border-rose-800/60">
+          <Link href="/lab/settings" className="flex items-center gap-2 pl-1 border-l border-rose-800/60 hover:opacity-90 transition-opacity cursor-pointer" title="View Profile & Signatory Credentials">
             <div className="w-7 h-7 rounded-full bg-rose-800/90 border border-rose-300/40 text-white flex items-center justify-center font-bold text-[10px] shadow-2xs shrink-0">
               {getInitials(userInfo.fullName)}
             </div>
@@ -287,6 +288,7 @@ export function TopNavbar() {
                 {userInfo.role}
               </div>
             </div>
+          </Link>
 
             {/* Logout Button */}
             <button
@@ -297,7 +299,6 @@ export function TopNavbar() {
             >
               <LogOut className="w-4 h-4" />
             </button>
-          </div>
 
           {/* Mobile Menu Hamburger */}
           <button
