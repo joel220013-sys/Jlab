@@ -827,7 +827,7 @@ export default function SettingsPage() {
                           type="text"
                           value={labLogoUrl}
                           onChange={(e) => setLabLogoUrl(e.target.value)}
-                          placeholder="https://.../logo.png or /jlab-logo.png"
+                          placeholder="https://.../logo.png or /pulselab-logo.png"
                           className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600"
                         />
                         <span className="text-[10px] text-slate-400 mt-0.5 block">

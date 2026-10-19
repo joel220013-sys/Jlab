@@ -335,7 +335,7 @@ export default function MasterProvisioningPage() {
           <div className="text-center space-y-2">
             <div className="w-16 h-16 rounded-2xl bg-white border border-slate-700/80 mx-auto flex items-center justify-center p-1.5 shadow-lg shadow-black/40">
               <Image
-                src="/jlab-logo.png"
+                src="/pulselab-logo.png"
                 alt="PULSE LAB Logo"
                 width={56}
                 height={56}
@@ -411,7 +411,7 @@ export default function MasterProvisioningPage() {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-md shrink-0">
               <Image
-                src="/jlab-logo.png"
+                src="/pulselab-logo.png"
                 alt="PULSE LAB"
                 width={36}
                 height={36}

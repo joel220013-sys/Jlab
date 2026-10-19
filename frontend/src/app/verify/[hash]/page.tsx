@@ -79,7 +79,7 @@ export default function VerifyReportPage() {
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-md shrink-0">
               <Image
-                src="/jlab-logo.png"
+                src="/pulselab-logo.png"
                 alt="PULSE LAB Logo"
                 width={32}
                 height={32}
@@ -227,7 +227,7 @@ export default function VerifyReportPage() {
       {/* Footer */}
       <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500 bg-white flex items-center justify-center gap-1.5">
         <Image
-          src="/jlab-logo.png"
+          src="/pulselab-logo.png"
           alt="PULSE LAB"
           width={20}
           height={20}

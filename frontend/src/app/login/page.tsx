@@ -77,7 +77,7 @@ export default function LoginPage() {
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-md shrink-0">
             <Image
-              src="/jlab-logo.png"
+              src="/pulselab-logo.png"
               alt="PULSE LAB Logo"
               width={36}
               height={36}
@@ -105,7 +105,7 @@ export default function LoginPage() {
           <div className="text-center space-y-2">
             <div className="inline-flex p-3 rounded-2xl bg-white border border-slate-200 shadow-md mb-1">
               <Image
-                src="/jlab-logo.png"
+                src="/pulselab-logo.png"
                 alt="PULSE LAB"
                 width={56}
                 height={56}
@@ -247,7 +247,7 @@ export default function LoginPage() {
       {/* Footer */}
       <footer className="border-t border-slate-200 py-3 text-center text-xs text-slate-500 bg-white flex items-center justify-center gap-1.5">
         <Image
-          src="/jlab-logo.png"
+          src="/pulselab-logo.png"
           alt="PULSE LAB"
           width={20}
           height={20}

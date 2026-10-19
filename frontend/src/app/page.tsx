@@ -19,7 +19,7 @@ export default function LandingPage() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-white border border-rose-200/50 flex items-center justify-center p-1 overflow-hidden shadow-lg shadow-rose-950/20 group-hover:scale-105 group-hover:border-rose-300 transition-all shrink-0">
               <Image
-                src="/jlab-logo.png"
+                src="/pulselab-logo.png"
                 alt="PULSE LAB Logo"
                 width={40}
                 height={40}
@@ -413,7 +413,7 @@ export default function LandingPage() {
       <footer className="border-t border-slate-200 py-8 px-6 text-center text-xs text-slate-500 bg-white space-y-2">
         <div className="flex items-center justify-center gap-2 font-bold text-slate-900">
           <Image
-            src="/jlab-logo.png"
+            src="/pulselab-logo.png"
             alt="PULSE LAB"
             width={24}
             height={24}

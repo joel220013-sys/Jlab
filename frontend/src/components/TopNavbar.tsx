@@ -177,7 +177,7 @@ export function TopNavbar() {
           <Link href="/lab/dashboard" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-xs group-hover:scale-105 transition-transform shrink-0">
               <Image
-                src="/jlab-logo.png"
+                src="/pulselab-logo.png"
                 alt="PULSE LAB Logo"
                 width={32}
                 height={32}

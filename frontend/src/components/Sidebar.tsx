@@ -128,7 +128,7 @@ export function Sidebar() {
         <Link href="/lab/dashboard" className="flex items-center gap-3 group">
           <div className="w-10 h-10 rounded-xl bg-white border border-rose-200/50 flex items-center justify-center p-1 overflow-hidden shadow-lg shadow-rose-950/30 group-hover:scale-105 group-hover:border-rose-300 transition-all shrink-0">
             <Image
-              src="/jlab-logo.png"
+              src="/pulselab-logo.png"
               alt="PULSE LAB Logo"
               width={40}
               height={40}
