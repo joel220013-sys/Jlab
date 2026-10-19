@@ -178,7 +178,7 @@ export function TopNavbar() {
             <div className="w-8 h-8 rounded-lg bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-xs group-hover:scale-105 transition-transform shrink-0">
               <Image
                 src="/jlab-logo.png"
-                alt="J LAB Logo"
+                alt="PULSE LAB Logo"
                 width={32}
                 height={32}
                 priority
@@ -187,7 +187,7 @@ export function TopNavbar() {
             </div>
             <div className="hidden sm:block">
               <div className="font-bold text-sm tracking-tight text-white flex items-center gap-1">
-                J LAB
+                PULSE LAB
               </div>
               <div className="text-[9px] text-rose-200/70 -mt-0.5 font-medium leading-none">Diagnostic Cloud</div>
             </div>

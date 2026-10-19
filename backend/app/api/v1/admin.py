@@ -420,11 +420,11 @@ async def provision_new_client_lab(req: ProvisionLabRequest, db: AsyncSession = 
     await db.commit()
 
     # Generate License Key & WhatsApp Onboarding Message
-    license_key = f"JLAB-{datetime.utcnow().year}-{new_lab.slug.upper()[:8]}-{uuid.uuid4().hex[:4].upper()}"
+    license_key = f"PULSE-{datetime.utcnow().year}-{new_lab.slug.upper()[:8]}-{uuid.uuid4().hex[:4].upper()}"
     expiry_date = (datetime.utcnow() + timedelta(days=req.valid_days or 365)).strftime("%d-%b-%Y")
 
     whatsapp_msg = (
-        f"🏥 *Welcome to J LAB Diagnostic OS!*\n"
+        f"🏥 *Welcome to PULSE LAB Diagnostic OS!*\n"
         f"Your laboratory software account has been successfully provisioned and activated.\n\n"
         f"🏢 *Laboratory:* {new_lab.name}\n"
         f"🌐 *Staff Login Portal:* http://localhost:3000/login\n"

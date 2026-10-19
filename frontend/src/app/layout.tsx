@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "J LAB · Next-Gen Diagnostic Cloud",
+  title: "PULSE LAB · Next-Gen Diagnostic Cloud",
   description: "Modern NABL & ISO 15189:2022 compliant Laboratory Information Management System (LIMS).",
   icons: {
     icon: "/jlab-logo.png",

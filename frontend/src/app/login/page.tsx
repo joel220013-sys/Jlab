@@ -78,7 +78,7 @@ export default function LoginPage() {
           <div className="w-9 h-9 rounded-xl bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-md shrink-0">
             <Image
               src="/jlab-logo.png"
-              alt="J LAB Logo"
+              alt="PULSE LAB Logo"
               width={36}
               height={36}
               priority
@@ -87,7 +87,7 @@ export default function LoginPage() {
           </div>
           <div>
             <div className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-              J LAB
+              PULSE LAB
             </div>
             <div className="text-[10px] text-rose-200/70 -mt-0.5">Diagnostic Management OS</div>
           </div>
@@ -106,7 +106,7 @@ export default function LoginPage() {
             <div className="inline-flex p-3 rounded-2xl bg-white border border-slate-200 shadow-md mb-1">
               <Image
                 src="/jlab-logo.png"
-                alt="J LAB"
+                alt="PULSE LAB"
                 width={56}
                 height={56}
                 priority
@@ -248,12 +248,12 @@ export default function LoginPage() {
       <footer className="border-t border-slate-200 py-3 text-center text-xs text-slate-500 bg-white flex items-center justify-center gap-1.5">
         <Image
           src="/jlab-logo.png"
-          alt="J LAB"
+          alt="PULSE LAB"
           width={20}
           height={20}
           className="w-5 h-5 rounded-md object-contain bg-white p-0.5 border border-slate-200"
         />
-        <span>J LAB · HIPAA &amp; NABL Compliant SaaS Laboratory Architecture</span>
+        <span>PULSE LAB · HIPAA &amp; NABL Compliant SaaS Laboratory Architecture</span>
       </footer>
     </div>
   );

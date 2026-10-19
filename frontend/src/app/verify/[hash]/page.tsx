@@ -80,7 +80,7 @@ export default function VerifyReportPage() {
             <div className="w-8 h-8 rounded-lg bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-md shrink-0">
               <Image
                 src="/jlab-logo.png"
-                alt="J LAB Logo"
+                alt="PULSE LAB Logo"
                 width={32}
                 height={32}
                 priority
@@ -88,7 +88,7 @@ export default function VerifyReportPage() {
               />
             </div>
             <div className="font-bold text-sm tracking-tight text-white flex items-center gap-1.5">
-              J LAB <span className="text-cyan-400 font-mono text-xs">VERIFY</span>
+              PULSE LAB <span className="text-cyan-400 font-mono text-xs">VERIFY</span>
             </div>
           </Link>
 
@@ -208,7 +208,7 @@ export default function VerifyReportPage() {
                 href="/login"
                 className="text-xs text-cyan-700 hover:text-cyan-800 font-bold inline-flex items-center gap-1"
               >
-                J LAB Provider Login <ExternalLink className="w-3 h-3" />
+                PULSE LAB Provider Login <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
           </div>
@@ -217,7 +217,7 @@ export default function VerifyReportPage() {
             <AlertTriangle className="w-12 h-12 text-rose-600 mx-auto" />
             <h2 className="text-lg font-bold text-rose-950">Unverified Document Warning</h2>
             <p className="text-xs text-rose-700">
-              The verification hash provided does not match any authorized clinical report in the J LAB trust network. 
+              The verification hash provided does not match any authorized clinical report in the PULSE LAB trust network. 
               The document may be altered, invalid, or forged.
             </p>
           </div>
@@ -228,12 +228,12 @@ export default function VerifyReportPage() {
       <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500 bg-white flex items-center justify-center gap-1.5">
         <Image
           src="/jlab-logo.png"
-          alt="J LAB"
+          alt="PULSE LAB"
           width={20}
           height={20}
           className="w-5 h-5 rounded-md object-contain bg-white p-0.5 border border-slate-200"
         />
-        <span>Powered by J LAB · Tamper-Resistant Diagnostic Cloud</span>
+        <span>Powered by PULSE LAB · Tamper-Resistant Diagnostic Cloud</span>
       </footer>
     </div>
   );

@@ -336,7 +336,7 @@ export default function MasterProvisioningPage() {
             <div className="w-16 h-16 rounded-2xl bg-white border border-slate-700/80 mx-auto flex items-center justify-center p-1.5 shadow-lg shadow-black/40">
               <Image
                 src="/jlab-logo.png"
-                alt="J LAB Logo"
+                alt="PULSE LAB Logo"
                 width={56}
                 height={56}
                 priority
@@ -344,7 +344,7 @@ export default function MasterProvisioningPage() {
               />
             </div>
             <h1 className="text-xl font-black tracking-tight text-white mt-2">
-              J LAB Master Terminal
+              PULSE LAB Master Terminal
             </h1>
             <p className="text-xs text-slate-400">
               Authorized Software Seller &amp; Client Account Provisioning.
@@ -412,7 +412,7 @@ export default function MasterProvisioningPage() {
             <div className="w-9 h-9 rounded-xl bg-white border border-rose-200/50 flex items-center justify-center p-0.5 overflow-hidden shadow-md shrink-0">
               <Image
                 src="/jlab-logo.png"
-                alt="J LAB"
+                alt="PULSE LAB"
                 width={36}
                 height={36}
                 priority
@@ -421,7 +421,7 @@ export default function MasterProvisioningPage() {
             </div>
             <div>
               <div className="font-bold text-sm tracking-tight flex items-center gap-2">
-                <span>J LAB</span>
+                <span>PULSE LAB</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-900/80 border border-rose-700/60 font-mono text-rose-200">
                   MASTER LICENSING CONSOLE
                 </span>
@@ -538,7 +538,7 @@ export default function MasterProvisioningPage() {
                   <span>Onboard &amp; Provision New Diagnostic Laboratory Client</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Fill in the client lab details below when a customer purchases J LAB. 
+                  Fill in the client lab details below when a customer purchases PULSE LAB. 
                   This creates their database tenant, initial Administrator account, and initializes all 265+ tests with 767 parameters.
                 </p>
               </div>
@@ -885,7 +885,7 @@ export default function MasterProvisioningPage() {
                   Active Client Laboratories Directory
                 </h2>
                 <p className="text-xs text-slate-500">
-                  All labs operating on J LAB. Manage licenses, reset passwords, and view system metrics.
+                  All labs operating on PULSE LAB. Manage licenses, reset passwords, and view system metrics.
                 </p>
               </div>
 
@@ -988,7 +988,7 @@ export default function MasterProvisioningPage() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  const text = `J LAB Login Credentials:\nURL: http://localhost:3000/login\nLab: ${lab.name}\nAdmin Username: ${lab.admin.username}\nPhone: ${lab.admin.phone}`;
+                                  const text = `PULSE LAB Login Credentials:\nURL: http://localhost:3000/login\nLab: ${lab.name}\nAdmin Username: ${lab.admin.username}\nPhone: ${lab.admin.phone}`;
                                   copyToClipboard(text, lab.id);
                                 }}
                                 className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition-colors"

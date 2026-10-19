@@ -5,7 +5,7 @@ from typing import List, Union
 import os
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "J LAB"
+    PROJECT_NAME: str = "PULSE LAB"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     

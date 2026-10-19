@@ -129,7 +129,7 @@ export function Sidebar() {
           <div className="w-10 h-10 rounded-xl bg-white border border-rose-200/50 flex items-center justify-center p-1 overflow-hidden shadow-lg shadow-rose-950/30 group-hover:scale-105 group-hover:border-rose-300 transition-all shrink-0">
             <Image
               src="/jlab-logo.png"
-              alt="J LAB Logo"
+              alt="PULSE LAB Logo"
               width={40}
               height={40}
               priority
@@ -138,7 +138,7 @@ export function Sidebar() {
           </div>
           <div>
             <div className="font-bold text-base text-white tracking-tight flex items-center gap-1.5">
-              J LAB
+              PULSE LAB
             </div>
             <div className="text-[11px] text-rose-200/70 font-medium">Diagnostic LIMS SaaS</div>
           </div>

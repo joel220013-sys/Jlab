@@ -14,7 +14,7 @@ from app.main import app
 
 def run_tests():
     print("=" * 60)
-    print("        J LAB SECURITY HARDENING & AUDIT VERIFICATION")
+    print("        PULSE LAB SECURITY HARDENING & AUDIT VERIFICATION")
     print("=" * 60)
     passed = 0
     total = 0

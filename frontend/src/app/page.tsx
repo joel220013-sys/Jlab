@@ -20,7 +20,7 @@ export default function LandingPage() {
             <div className="w-10 h-10 rounded-xl bg-white border border-rose-200/50 flex items-center justify-center p-1 overflow-hidden shadow-lg shadow-rose-950/20 group-hover:scale-105 group-hover:border-rose-300 transition-all shrink-0">
               <Image
                 src="/jlab-logo.png"
-                alt="J LAB Logo"
+                alt="PULSE LAB Logo"
                 width={40}
                 height={40}
                 priority
@@ -29,7 +29,7 @@ export default function LandingPage() {
             </div>
             <div>
               <div className="font-bold text-lg text-white tracking-tight flex items-center gap-1.5">
-                J LAB
+                PULSE LAB
               </div>
               <div className="text-[10px] text-neutral-400">Diagnostic Laboratory Management Cloud</div>
             </div>
@@ -38,13 +38,13 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-6 text-xs text-neutral-300 font-medium">
             <a href="#features" className="hover:text-cyan-400 transition-colors">Features</a>
             <a href="#workflow" className="hover:text-cyan-400 transition-colors">Lab Workflow</a>
-            <a href="#comparison" className="hover:text-cyan-400 transition-colors">Why J LAB</a>
+            <a href="#comparison" className="hover:text-cyan-400 transition-colors">Why PULSE LAB</a>
             <a href="#pricing" className="hover:text-cyan-400 transition-colors">Pricing</a>
           </div>
 
           <div className="flex items-center gap-3">
             <a
-              href="https://wa.me/917899514777?text=Hello%20J%20LAB%2C%20I%20want%20to%20buy%20the%20J%20LAB%20Diagnostic%20Software%20License."
+              href="https://wa.me/917899514777?text=Hello%20PULSE%20LAB%2C%20I%20want%20to%20buy%20the%20PULSE%20LAB%20Diagnostic%20Software%20License."
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all items-center gap-1.5"
@@ -247,7 +247,7 @@ export default function LandingPage() {
                 <tr>
                   <th className="p-4">Feature / Workflow</th>
                   <th className="p-4 text-slate-500">Legacy LIMS / AyusLab</th>
-                  <th className="p-4 text-cyan-900 font-bold bg-cyan-50">J LAB (Modern SaaS)</th>
+                  <th className="p-4 text-cyan-900 font-bold bg-cyan-50">PULSE LAB (Modern SaaS)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -414,18 +414,18 @@ export default function LandingPage() {
         <div className="flex items-center justify-center gap-2 font-bold text-slate-900">
           <Image
             src="/jlab-logo.png"
-            alt="J LAB"
+            alt="PULSE LAB"
             width={24}
             height={24}
             className="w-6 h-6 rounded-md object-contain bg-white p-0.5 shadow-xs border border-slate-200"
           />
-          <span>J LAB Diagnostic Platform</span>
+          <span>PULSE LAB Diagnostic Platform</span>
         </div>
         <div>
           Designed for diagnostic laboratories, pathology clinics, and medical testing centers.
         </div>
         <div className="text-[11px] text-slate-400">
-          © 2026 J LAB Technologies. All rights reserved. NABL &amp; ISO 15189:2022 compliant design.
+          © 2026 PULSE LAB Technologies. All rights reserved. NABL &amp; ISO 15189:2022 compliant design.
         </div>
       </footer>
     </div>
