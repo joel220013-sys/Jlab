@@ -16,9 +16,12 @@ export const metadata: Metadata = {
   title: "PULSE LAB · Next-Gen Diagnostic Cloud",
   description: "Modern NABL & ISO 15189:2022 compliant Laboratory Information Management System (LIMS).",
   icons: {
-    icon: "/pulselab-logo.png",
-    shortcut: "/pulselab-logo.png",
-    apple: "/pulselab-logo.png",
+    icon: [
+      { url: "/pulselab-logo.png?v=2", type: "image/png" },
+      { url: "/favicon.ico?v=2", sizes: "any" },
+    ],
+    shortcut: "/pulselab-logo.png?v=2",
+    apple: "/pulselab-logo.png?v=2",
   },
 };
 
