@@ -413,7 +413,7 @@ function ReportsContent() {
   const handleWhatsAppShare = async (phone: string, patientName: string, verifyHash: string, customLabName?: string) => {
     const cleanPhone = phone.replace(/[^0-9]/g, "");
     const targetPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
-    const verifyLink = typeof window !== "undefined" ? `${window.location.origin}/verify/${verifyHash}` : `https://jlab-gamma.vercel.app/verify/${verifyHash}`;
+    const verifyLink = typeof window !== "undefined" ? `${window.location.origin}/verify/${verifyHash}` : `https://pulse-lab.vercel.app/verify/${verifyHash}`;
     let activeLabName = customLabName || selectedDispatch?.laboratory?.name || currentUser?.labName;
     if (!activeLabName && typeof window !== "undefined") {
       try {
@@ -443,7 +443,7 @@ function ReportsContent() {
           lab_number: selectedDispatch?.order?.lab_number || "LAB",
           verify_hash: verifyHash,
           channel: "whatsapp",
-          origin_url: typeof window !== "undefined" ? window.location.origin : "https://jlab-gamma.vercel.app",
+          origin_url: typeof window !== "undefined" ? window.location.origin : "https://pulse-lab.vercel.app",
           lab_name: activeLabName
         })
       });

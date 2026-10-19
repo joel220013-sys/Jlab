@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List, Optional
 from datetime import datetime
+import os
 from app.database import get_db
 from app.models.tenant import Laboratory
 from app.models.patient import Patient, Doctor
@@ -112,7 +113,8 @@ async def approve_test_result(
                         clean_phone = "".join(filter(str.isdigit, pat_obj.phone))
                         if len(clean_phone) == 10:
                             clean_phone = f"91{clean_phone}"
-                        report_url = f"https://jlab-gamma.vercel.app/verify/{rep.public_verification_hash}"
+                        frontend_base = os.getenv("FRONTEND_URL", "https://pulse-lab.vercel.app").rstrip("/")
+                        report_url = f"{frontend_base}/verify/{rep.public_verification_hash}"
                         template = comm_settings["templates"].get("report_ready", "")
                         msg = template.format(
                             patient_name=pat_obj.full_name,
